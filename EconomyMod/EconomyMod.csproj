@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="LookupAnything">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Stardew Valley\Mods\LookupAnything\LookupAnything.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.Build.Utilities.v4.0" />
@@ -48,12 +51,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\ModConfig.cs" />
+    <Compile Include="ModConfig.cs" />
+    <Compile Include="Model\LotValue.cs" />
     <Compile Include="Model\SaveState.cs" />
     <Compile Include="Model\TaxPaymentType.cs" />
     <Compile Include="ModEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TaxationService.cs" />
+    <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="i18n\pt.json" />

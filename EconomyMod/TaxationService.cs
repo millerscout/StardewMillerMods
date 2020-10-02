@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using EconomyMod.Model;
 using Microsoft.Xna.Framework;
+using Pathoschild.Stardew.LookupAnything.Framework.ItemScanning;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -17,18 +18,36 @@ namespace EconomyMod
         private IModHelper Helper;
         private IMonitor Monitor;
         public SaveState State;
-        private ModConfig Config;
+        private WorldItemScanner WorldItemScanner;
+        public LotValue LotValue;
 
         private bool AskedForPaymentToday { get; set; }
-        public TaxationService(IModHelper helper, IMonitor monitor, ModConfig config)
+        public TaxationService(IModHelper helper, IMonitor monitor)
         {
-            this.Config = config;
             this.Helper = helper;
             this.Monitor = monitor;
 
             helper.Events.GameLoop.DayStarted += this.GameLoop_DayStarted;
             helper.Events.GameLoop.DayEnding += this.DayEnding;
             helper.Events.GameLoop.ReturnedToTitle += this.GameLoop_ReturnedToTitle;
+
+            LotValue = new LotValue();
+            LotValue.AddDefaultLotValue();
+            if (Util.Config.IncludeOwnedObjectsOnLotValue)
+            {
+                WorldItemScanner = new WorldItemScanner(helper.Reflection);
+
+                LotValue.Add(() =>
+                {
+                    var items = WorldItemScanner.GetAllOwnedItems();
+
+                    var ItemPrices = items.Select(c =>
+                        c.Item.GetType().GetProperty("Price") != null ? (int)c.Item.GetType().GetProperty("Price").GetValue(c.Item) : c.Item.salePrice()
+                    );
+
+                    return ItemPrices.Sum();
+                });
+            }
         }
 
         private void GameLoop_ReturnedToTitle(object sender, ReturnedToTitleEventArgs e)
@@ -85,7 +104,7 @@ namespace EconomyMod
                 }
 
 
-                if (Tax * 100 / Game1.player.Money >= Config.ThresholdInPercentageToAskAboutPayment)
+                if (Tax * 100 / Game1.player.Money >= Util.Config.ThresholdInPercentageToAskAboutPayment)
                 {
                     Response[] responses = {
                     new Response ("A", $"{Helper.Translation.Get("PayText")} ( {Tax} )G"),
@@ -132,37 +151,43 @@ namespace EconomyMod
         private int CalculateLotValue()
         {
             var farm = Game1.getFarm();
-            this.CalculateUsableSoil(farm);
 
-            int depreciationObjectsCount = 0;
-            foreach (int item in this.Config.ListOfDepreciationObjects)
+            CalculateUsableSoil();
+
+            return LotValue.Sum / (100 - (State.UsableSoil - CalculateDepreciation()) * 100 / State.UsableSoil);
+
+            int CalculateDepreciation()
             {
-                depreciationObjectsCount += farm.numberOfObjectsOfType(item, false);
-            }
-
-            return this.Config.LotPrice / (100 - (State.UsableSoil - depreciationObjectsCount) * 100 / State.UsableSoil);
-        }
-
-        private void CalculateUsableSoil(Farm farm)
-        {
-            if (!State.CalculatedUsableSoil || State.UsableSoil == 0)
-            {
-                if (State.UsableSoil > 0) State.UsableSoil = 0;
-                Layer layer = farm.Map.GetLayer("Back");
-                foreach (var tile in this.GetTiles(0, 0, layer.LayerWidth, layer.LayerHeight))
+                int depreciationObjectsCount = 0;
+                foreach (int item in Util.Config.ListOfDepreciationObjects)
                 {
-                    if (farm.doesTileHaveProperty((int)tile.X, (int)tile.Y, "Diggable", "Back") != null)
-                    {
-                        State.UsableSoil++;
-                    }
+                    depreciationObjectsCount += farm.numberOfObjectsOfType(item, false);
                 }
-                this.Monitor.Log($"Detected {State.UsableSoil} usable soil.", LogLevel.Info);
-                State.CalculatedUsableSoil = true;
-
-                /// Failover when we couldn't calculate.
-                if (State.UsableSoil == 0) State.UsableSoil = 3687;
-
+                return depreciationObjectsCount;
             }
+
+            void CalculateUsableSoil()
+            {
+                if (!State.CalculatedUsableSoil || State.UsableSoil == 0)
+                {
+                    if (State.UsableSoil > 0) State.UsableSoil = 0;
+                    Layer layer = farm.Map.GetLayer("Back");
+                    foreach (var tile in this.GetTiles(0, 0, layer.LayerWidth, layer.LayerHeight))
+                    {
+                        if (farm.doesTileHaveProperty((int)tile.X, (int)tile.Y, "Diggable", "Back") != null)
+                        {
+                            State.UsableSoil++;
+                        }
+                    }
+                    this.Monitor.Log($"Detected {State.UsableSoil} usable soil.", LogLevel.Info);
+                    State.CalculatedUsableSoil = true;
+
+                    /// Failover when we couldn't calculate.
+                    if (State.UsableSoil == 0) State.UsableSoil = 3687;
+
+                }
+            }
+
         }
 
         private void PayTaxes(int Tax)
@@ -171,13 +196,13 @@ namespace EconomyMod
             State.paymentAmount = 0;
             State.PostPoneDaysLeft = State.PostPoneDaysLeftDefault;
             Game1.addHUDMessage(new HUDMessage(Helper.Translation.Get("TaxPaidText").ToString().Replace("#Tax#", Game1.player.displayName), 2));
-            
+
         }
 
         private void PostponePayment(int tax)
         {
             Game1.addHUDMessage(new HUDMessage(Helper.Translation.Get("postponedPaymentText"), 2));
-            if (State.PostPoneDaysLeft > 1)
+            if (State.PostPoneDaysLeft > 0)
                 State.PostPoneDaysLeft -= 1;
             State.paymentAmount += State.paymentAmount / 5;
             State.paymentAmount += tax + tax / 5;

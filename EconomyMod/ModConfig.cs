@@ -2,9 +2,12 @@ namespace EconomyMod
 {
     public class ModConfig
     {
-        public int LotPrice { get; set; } = 1500000;
+        public int LotValue { get; set; } = 1500000;
         public TaxPaymentType TaxPaymentType { get; set; }
         public byte ThresholdInPercentageToAskAboutPayment { get; set; } = 60;
+        public bool IncludeGreenhouseOnLotValue { get; set; } = true;
+        public bool IncludeOwnedObjectsOnLotValue { get; set; } = true;
+        public int GreenhouseValue { get; set; } = 35000; //value taken from Joja restoration.
 
         public int[] ListOfDepreciationObjects = new int[] {
             746, //Jack O Lantern

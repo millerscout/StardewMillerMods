@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using EconomyMod.Interface;
 using StardewModdingAPI;
 
 namespace EconomyMod
@@ -5,13 +7,13 @@ namespace EconomyMod
     public class ModEntry : Mod
     {
         private TaxationService taxation;
-
-        private bool AskedForPaymentToday = false;
-
+        public EconomyInterfaceHandler Interface { get; set; }
         public override void Entry(IModHelper helper)
         {
             Util.Config = helper.ReadConfig<ModConfig>();
+
             this.taxation = new TaxationService(helper, this.Monitor);
+            this.Interface = new EconomyInterfaceHandler(helper, taxation);
         }
     }
 }

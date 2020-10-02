@@ -25,5 +25,11 @@ namespace EconomyMod
             295, //Twig
             450, //Stone
         };
+        //public InterfaceConfiguration Interface { get; set; }
     }
+
+    //public class InterfaceConfiguration
+    //{
+    //    public int xPosition { get; set; }
+    //}
 }

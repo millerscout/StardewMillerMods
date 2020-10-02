@@ -87,12 +87,13 @@ namespace EconomyMod
                 {
 
                     int validFarmers = Game1.getAllFarmers().Select(c => c.name).Where(c => !string.IsNullOrEmpty(c)).Count();
+
                     this.Monitor.Log($"{Helper.Translation.Get("ValidFarmersText")}: {validFarmers}", LogLevel.Info);
                     Tax /= validFarmers;
                     this.Monitor.Log($"{Helper.Translation.Get("TaxEachFarmerText")}: {Tax}", LogLevel.Info);
                 }
 
-                if (Game1.player.Money - Tax <= 0)
+                if (Game1.player.Money - Tax <= 0 || Game1.player.Money == 0)
                 {
                     PostponePayment(Tax);
                     return;
@@ -154,7 +155,8 @@ namespace EconomyMod
 
             CalculateUsableSoil();
 
-            return LotValue.Sum / (100 - (State.UsableSoil - CalculateDepreciation()) * 100 / State.UsableSoil);
+            int depreciationPercentage = (100 - (State.UsableSoil - CalculateDepreciation()) * 100 / State.UsableSoil);
+            return depreciationPercentage > 0 ? LotValue.Sum / depreciationPercentage : LotValue.Sum;
 
             int CalculateDepreciation()
             {
@@ -195,7 +197,7 @@ namespace EconomyMod
             Game1.player.Money = Math.Max(0, Game1.player.Money - Tax);
             State.paymentAmount = 0;
             State.PostPoneDaysLeft = State.PostPoneDaysLeftDefault;
-            Game1.addHUDMessage(new HUDMessage(Helper.Translation.Get("TaxPaidText").ToString().Replace("#Tax#", Game1.player.displayName), 2));
+            Game1.addHUDMessage(new HUDMessage(Helper.Translation.Get("TaxPaidText").ToString().Replace("#Tax#", $"{Tax}"), 2));
 
         }
 

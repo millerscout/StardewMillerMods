@@ -12,8 +12,8 @@
     "PayText": "Pay",
     "PostponeText": "Postpone",
     "TaxAboveThresholdText": "Looks like if we pay the taxes we'll bankrupt!",
-    "PostponeChatText": "#playerName# has postponed payment now It's #Tax#g",
-    "TaxPaidText": "Tax Paid, value: #Tax# g"
+    "PostponeChatText": "#playerName# postponed payment, new value: #Tax#g",
+    "TaxPaidText": "Tax Paid, value: #Tax#g"
 
 
 

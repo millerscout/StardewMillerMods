@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using StardewModdingAPI;
 using StardewValley;
 
 namespace EconomyMod.Model
@@ -16,6 +17,7 @@ namespace EconomyMod.Model
         {
             get
             {
+                if (!Context.IsWorldReady) return 0;
                 return Values.Select(c => c()).Where(c => c > 0).Sum();
             }
         }

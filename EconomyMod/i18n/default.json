@@ -1,6 +1,6 @@
 {
-    "postponedPaymentText": "Postponed payment",
-    "currentLotValueText": "Current lot value",
+    "PostponedPaymentText": "Postponed payment",
+    "CurrentLotValueText": "Current lot value",
     "PaymentModeText": "Payment mode",
     "DailyText": "Daily",
     "WeeklyText": "Weekly",
@@ -13,9 +13,8 @@
     "PostponeText": "Postpone",
     "TaxAboveThresholdText": "Looks like if we pay the taxes we'll bankrupt!",
     "PostponeChatText": "#playerName# postponed payment, new value: #Tax#g",
-    "TaxPaidText": "Tax Paid, value: #Tax#g"
+    "TaxPaidText": "Tax Paid, value: #Tax#g",
 
-
-
-
+    "BalanceReportText": "Economic Report",
+    "CurrentTaxBalance": "Pending tax amount"
 }

@@ -21,7 +21,7 @@ namespace EconomyMod
         private WorldItemScanner WorldItemScanner;
         public LotValue LotValue;
 
-        private bool AskedForPaymentToday { get; set; }
+        internal bool AskedForPaymentToday { get; set; }
         public TaxationService(IModHelper helper, IMonitor monitor)
         {
             this.Helper = helper;
@@ -77,10 +77,10 @@ namespace EconomyMod
             if (!this.AskedForPaymentToday)
             {
                 int CurrentLotValue = this.CalculateLotValue();
-                this.Monitor.Log($"{Helper.Translation.Get("postponedPaymentText")}: {State.paymentAmount}.", LogLevel.Info);
-                this.Monitor.Log($"{Helper.Translation.Get("currentLotValueText")}: {CurrentLotValue}.", LogLevel.Info);
+                this.Monitor.Log($"{Helper.Translation.Get("PostponedPaymentText")}: {State.PendingTaxAmount}.", LogLevel.Info);
+                this.Monitor.Log($"{Helper.Translation.Get("CurrentLotValueText")}: {CurrentLotValue}.", LogLevel.Info);
 
-                int Tax = CurrentLotValue / 28 / 4 + State.paymentAmount;
+                int Tax = CurrentLotValue / 28 / 4 + State.PendingTaxAmount;
                 this.Monitor.Log($"[Hardcoded for now] {Helper.Translation.Get("PaymentModeText")}: {Helper.Translation.Get("DailyText")}, {Helper.Translation.Get("TaxValueText")}: {Tax}", LogLevel.Info);
                 this.Monitor.Log($"{Helper.Translation.Get("SeparateWalletsText")}: {Game1.player.useSeparateWallets}", LogLevel.Info);
                 if (Game1.player.useSeparateWallets)
@@ -192,10 +192,11 @@ namespace EconomyMod
 
         }
 
-        private void PayTaxes(int Tax)
+        internal void PayTaxes(int Tax = 0)
         {
+            if (Tax == 0) Tax = State.PendingTaxAmount;
             Game1.player.Money = Math.Max(0, Game1.player.Money - Tax);
-            State.paymentAmount = 0;
+            State.PendingTaxAmount = 0;
             State.PostPoneDaysLeft = State.PostPoneDaysLeftDefault;
             Game1.addHUDMessage(new HUDMessage(Helper.Translation.Get("TaxPaidText").ToString().Replace("#Tax#", $"{Tax}"), 2));
 
@@ -203,12 +204,12 @@ namespace EconomyMod
 
         private void PostponePayment(int tax)
         {
-            Game1.addHUDMessage(new HUDMessage(Helper.Translation.Get("postponedPaymentText"), 2));
+            Game1.addHUDMessage(new HUDMessage(Helper.Translation.Get("PostponedPaymentText"), 2));
             if (State.PostPoneDaysLeft > 0)
                 State.PostPoneDaysLeft -= 1;
-            State.paymentAmount += State.paymentAmount / 5;
-            State.paymentAmount += tax + tax / 5;
-            Game1.chatBox.addInfoMessage(Helper.Translation.Get("PostponeChatText").ToString().Replace("#playerName#", Game1.player.displayName).Replace("#Tax#", $"{State.paymentAmount}"));
+            State.PendingTaxAmount += State.PendingTaxAmount / 5;
+            State.PendingTaxAmount += tax + tax / 5;
+            Game1.chatBox.addInfoMessage(Helper.Translation.Get("PostponeChatText").ToString().Replace("#playerName#", Game1.player.displayName).Replace("#Tax#", $"{State.PendingTaxAmount}"));
 
         }
     }

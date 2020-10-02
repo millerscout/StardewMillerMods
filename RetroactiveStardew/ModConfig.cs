@@ -1,4 +1,4 @@
-﻿namespace RetroactiveStardew
+namespace RetroactiveStardew
 {
     public class ModConfig
     {

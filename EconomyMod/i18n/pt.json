@@ -1,0 +1,17 @@
+{
+    "postponedPaymentText": "Pagamento adiado",
+    "currentLotValueText": "Valor do terreno",
+    "PaymentModeText": "Modo de pagamento",
+    "DailyText": "Diário",
+    "WeeklyText": "Semanal",
+    "YearlyText": "Anual",
+    "TaxValueText": "Valor do Imposto",
+    "SeparateWalletsText": "Cateiras separadas",
+    "ValidFarmersText": "Fazendeiros válidos",
+    "TaxEachFarmerText": "Imposto para cada fazendeiro",
+    "PayText": "Pagar",
+    "PostponeText": "Adiar",
+    "TaxAboveThresholdText": "Parece que se pagarmos os impostos, iremos falir!",
+    "PostponeChatText": "#playerName# adiou o pagamento, o imposto agora é: #Tax#g",
+    "TaxPaidText": "Imposto pago, Valor: #Tax#g"
+}

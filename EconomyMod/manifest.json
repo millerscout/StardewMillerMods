@@ -1,0 +1,10 @@
+{
+  "Name": "EconomyMod",
+  "Author": "millerscout",
+  "Version": "1.0.0",
+  "Description": "WIP tax mod",
+  "UniqueID": "EconomyMod.retroactiveStardew",
+  "EntryDll": "EconomyMod.dll",
+  "MinimumApiVersion": "3.0.0",
+  "UpdateKeys": [ "Nexus:6955" ]
+}

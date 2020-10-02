@@ -6,5 +6,5 @@
   "UniqueID": "millerscout.retroactiveStardew",
   "EntryDll": "RetroactiveStardew.dll",
   "MinimumApiVersion": "3.0.0",
-    "UpdateKeys": [ "Nexus:6953" ]
+  "UpdateKeys": [ "Nexus:6953" ]
 }

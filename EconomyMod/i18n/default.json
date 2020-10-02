@@ -1,0 +1,21 @@
+{
+    "postponedPaymentText": "Postponed payment",
+    "currentLotValueText": "Current lot value",
+    "PaymentModeText": "Payment mode",
+    "DailyText": "Daily",
+    "WeeklyText": "Weekly",
+    "YearlyText": "Yearly",
+    "TaxValueText": "Tax value",
+    "SeparateWalletsText": "Separate wallets",
+    "ValidFarmersText": "Valid farmers",
+    "TaxEachFarmerText": "Tax for each farmer",
+    "PayText": "Pay",
+    "PostponeText": "Postpone",
+    "TaxAboveThresholdText": "Looks like if we pay the taxes we'll bankrupt!",
+    "PostponeChatText": "#playerName# has postponed payment now It's #Tax#g",
+    "TaxPaidText": "Tax Paid, value: #Tax# g"
+
+
+
+
+}

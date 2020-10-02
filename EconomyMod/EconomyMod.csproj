@@ -61,6 +61,7 @@
     <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="i18n\de.json" />
     <None Include="i18n\pt.json" />
     <None Include="i18n\default.json" />
     <None Include="manifest.json" />

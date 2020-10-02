@@ -1,0 +1,17 @@
+{
+"postponedPaymentText": "Aufgeschobene Zahlung",
+"currentLotValueText": "Aktueller Grundstückswert",
+"PaymentModeText": "Zahlungsmethode",
+"DailyText": "Täglich",
+"WeeklyText": "Wöchentlich",
+"YearlyText": "Jährlich",
+"TaxValueText": "Steuerwert",
+"SeparateWalletsText": "Separate Geldbörse",
+"ValidFarmersText": "Gültige Bauern",
+"TaxEachFarmerText": "Steuer für jeden Bauern",
+"PayText": "Bezahlen",
+"PostponeText": "Aufschieben",
+"TaxAboveThresholdText": "Wenn wir die Steuern bezahlen, sind wir bankrott!",
+"PostponeChatText": "#playerName# hat die Zahlung aufgeschoben, neuer Wert: #Tax#g",
+"TaxPaidText": "Steuer bezahlt, Wert: #Tax#g"
+}

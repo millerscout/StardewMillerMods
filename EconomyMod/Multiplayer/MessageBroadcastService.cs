@@ -11,16 +11,14 @@ namespace EconomyMod.Multiplayer
 {
     public class MessageBroadcastService
     {
-        private IModHelper helper;
         private TaxationService taxation;
         private Dictionary<BroadcastType, Action<BroadcastMessage>> broadcastActions;
 
-        public MessageBroadcastService(IModHelper helper, TaxationService taxation)
+        public MessageBroadcastService(TaxationService taxation)
         {
-            this.helper = helper;
             this.taxation = taxation;
 
-            helper.Events.Multiplayer.ModMessageReceived += Multiplayer_ModMessageReceived;
+            Util.Helper.Events.Multiplayer.ModMessageReceived += Multiplayer_ModMessageReceived;
 
             this.taxation.OnPayTaxesCompleted += Taxation_OnPayTaxesCompleted;
             this.taxation.OnPostPoneTaxesCompleted += Taxation_OnPostPoneTaxesCompleted;
@@ -29,7 +27,6 @@ namespace EconomyMod.Multiplayer
             this.broadcastActions = new Dictionary<BroadcastType, Action<BroadcastMessage>>() {
                 {  BroadcastType.Taxation_Paid, PaidTaxes},
                 {  BroadcastType.Taxation_Postpone, PostPone},
-
             };
 
         }
@@ -43,7 +40,7 @@ namespace EconomyMod.Multiplayer
                     Tax = tax,
                     DisplayName = Game1.player.displayName
                 };
-                helper.Multiplayer.SendMessage(message, $"{BroadcastType.Taxation_Postpone}", modIDs: new[] { Util.ModManifest.UniqueID });
+                Util.Helper.Multiplayer.SendMessage(message, $"{BroadcastType.Taxation_Postpone}", modIDs: new[] { Util.ModManifest.UniqueID });
             }
         }
 
@@ -56,7 +53,7 @@ namespace EconomyMod.Multiplayer
                     Tax = tax,
                     DisplayName = Game1.player.displayName
                 };
-                helper.Multiplayer.SendMessage(message, $"{BroadcastType.Taxation_Paid}", modIDs: new[] { Util.ModManifest.UniqueID });
+                Util.Helper.Multiplayer.SendMessage(message, $"{BroadcastType.Taxation_Paid}", modIDs: new[] { Util.ModManifest.UniqueID });
             }
         }
 
@@ -65,7 +62,6 @@ namespace EconomyMod.Multiplayer
 
             if (Util.IsValidMultiplayer)
             {
-                //from playerid
                 if (e.FromModID == Util.ModManifest.UniqueID)
                 {
                     var message = e.ReadAs<Messages.BroadcastMessage>();
@@ -77,11 +73,13 @@ namespace EconomyMod.Multiplayer
 
         private void PaidTaxes(BroadcastMessage message)
         {
+            //TODO: Localization
             Game1.chatBox.addInfoMessage($"{message.DisplayName} paid his taxes");
         }
         private void PostPone(BroadcastMessage message)
         {
-            Game1.chatBox.addInfoMessage(helper.Translation.Get("PostponeChatText").ToString().Replace("#playerName#", message.DisplayName).Replace("#Tax#", $"{message.Tax}"));
+            //TODO: Localization
+            Game1.chatBox.addInfoMessage(Util.Helper.Translation.Get("PostponeChatText").ToString().Replace("#playerName#", message.DisplayName).Replace("#Tax#", $"{message.Tax}"));
         }
     }
 }

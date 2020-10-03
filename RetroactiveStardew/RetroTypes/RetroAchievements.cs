@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -153,7 +153,7 @@ namespace RetroactiveStardew
                     }
                 }
             }
-            if (numberOfRecipesMade >= recipes.Count - 1)
+            if (numberOfRecipesMade >= recipes.Count - 1 || Config.ArtisanAchievementShouldUseRecipeCount && numberOfRecipesMade >= Config.RecipeCountForArtisanAchievement)
             {
                 this.Monitor.Log($"[Achievement] Craft Master unlocked.", LogLevel.Info);
                 if (!Game1.player.achievements.Contains(22) && !this.Config.OnlyLog)

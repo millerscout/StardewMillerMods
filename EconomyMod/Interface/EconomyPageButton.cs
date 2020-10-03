@@ -14,6 +14,8 @@ namespace EconomyMod.Interface
 {
     class EconomyPageButton : IClickableMenu
     {
+        private IModHelper helper;
+
         public Texture2D IconTexture { get; set; }
         public Rectangle Bounds { get; }
 
@@ -24,7 +26,7 @@ namespace EconomyMod.Interface
             width = 64;
             height = 64;
             GameMenu activeClickableMenu = Game1.activeClickableMenu as GameMenu;
-
+            this.helper = helper;
             xPositionOnScreen = activeClickableMenu.xPositionOnScreen + activeClickableMenu.width - 304;
             yPositionOnScreen = activeClickableMenu.yPositionOnScreen + 16;
             Bounds = new Rectangle(xPositionOnScreen, yPositionOnScreen, width, height);
@@ -90,7 +92,7 @@ namespace EconomyMod.Interface
 
             if (isWithinBounds(Game1.getMouseX(), Game1.getMouseY()))
             {
-                IClickableMenu.drawHoverText(Game1.spriteBatch, "Balance report", Game1.smallFont);
+                IClickableMenu.drawHoverText(Game1.spriteBatch, this.helper.Translation.Get("BalanceReportText"), Game1.smallFont);
             }
             if (!Game1.options.hardwareCursor)
             {

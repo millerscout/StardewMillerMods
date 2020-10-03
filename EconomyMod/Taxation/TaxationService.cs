@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using EconomyMod.Model;
+using EconomyMod.Multiplayer.Messages;
 using Microsoft.Xna.Framework;
 using Pathoschild.Stardew.LookupAnything.Framework.ItemScanning;
 using StardewModdingAPI;
@@ -16,16 +17,17 @@ namespace EconomyMod
     public class TaxationService
     {
         private IModHelper Helper;
-        private IMonitor Monitor;
         public SaveState State;
         private WorldItemScanner WorldItemScanner;
         public LotValue LotValue;
+        public event EventHandler<int> OnPayTaxesCompleted;
+        public event EventHandler<int> OnPostPoneTaxesCompleted;
+
 
         internal bool AskedForPaymentToday { get; set; }
-        public TaxationService(IModHelper helper, IMonitor monitor)
+        public TaxationService(IModHelper helper)
         {
             this.Helper = helper;
-            this.Monitor = monitor;
 
             helper.Events.GameLoop.DayStarted += this.GameLoop_DayStarted;
             helper.Events.GameLoop.DayEnding += this.DayEnding;
@@ -48,6 +50,10 @@ namespace EconomyMod
                     return ItemPrices.Sum();
                 });
             }
+
+#if DEBUG
+            helper.Events.Input.ButtonPressed += this.OnButtonPressed;
+#endif
         }
 
         private void GameLoop_ReturnedToTitle(object sender, ReturnedToTitleEventArgs e)
@@ -77,20 +83,20 @@ namespace EconomyMod
             if (!this.AskedForPaymentToday)
             {
                 int CurrentLotValue = this.CalculateLotValue();
-                this.Monitor.Log($"{Helper.Translation.Get("PostponedPaymentText")}: {State.PendingTaxAmount}.", LogLevel.Info);
-                this.Monitor.Log($"{Helper.Translation.Get("CurrentLotValueText")}: {CurrentLotValue}.", LogLevel.Info);
+                Util.Monitor.Log($"{Helper.Translation.Get("PostponedPaymentText")}: {State.PendingTaxAmount}.", LogLevel.Info);
+                Util.Monitor.Log($"{Helper.Translation.Get("CurrentLotValueText")}: {CurrentLotValue}.", LogLevel.Info);
 
                 int Tax = CurrentLotValue / 28 / 4 + State.PendingTaxAmount;
-                this.Monitor.Log($"[Hardcoded for now] {Helper.Translation.Get("PaymentModeText")}: {Helper.Translation.Get("DailyText")}, {Helper.Translation.Get("TaxValueText")}: {Tax}", LogLevel.Info);
-                this.Monitor.Log($"{Helper.Translation.Get("SeparateWalletsText")}: {Game1.player.useSeparateWallets}", LogLevel.Info);
+                Util.Monitor.Log($"[Hardcoded for now] {Helper.Translation.Get("PaymentModeText")}: {Helper.Translation.Get("DailyText")}, {Helper.Translation.Get("TaxValueText")}: {Tax}", LogLevel.Info);
+                Util.Monitor.Log($"{Helper.Translation.Get("SeparateWalletsText")}: {Game1.player.useSeparateWallets}", LogLevel.Info);
                 if (Game1.player.useSeparateWallets)
                 {
 
                     int validFarmers = Game1.getAllFarmers().Select(c => c.name).Where(c => !string.IsNullOrEmpty(c)).Count();
 
-                    this.Monitor.Log($"{Helper.Translation.Get("ValidFarmersText")}: {validFarmers}", LogLevel.Info);
+                    Util.Monitor.Log($"{Helper.Translation.Get("ValidFarmersText")}: {validFarmers}", LogLevel.Info);
                     Tax /= validFarmers;
-                    this.Monitor.Log($"{Helper.Translation.Get("TaxEachFarmerText")}: {Tax}", LogLevel.Info);
+                    Util.Monitor.Log($"{Helper.Translation.Get("TaxEachFarmerText")}: {Tax}", LogLevel.Info);
                 }
 
                 if (Game1.player.Money - Tax <= 0 || Game1.player.Money == 0)
@@ -181,7 +187,7 @@ namespace EconomyMod
                             State.UsableSoil++;
                         }
                     }
-                    this.Monitor.Log($"Detected {State.UsableSoil} usable soil.", LogLevel.Info);
+                    Util.Monitor.Log($"Detected {State.UsableSoil} usable soil.", LogLevel.Info);
                     State.CalculatedUsableSoil = true;
 
                     /// Failover when we couldn't calculate.
@@ -192,6 +198,21 @@ namespace EconomyMod
 
         }
 
+#if DEBUG
+        private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
+        {
+            // ignore if player hasn't loaded a save yet
+            if (!Context.IsWorldReady)
+                return;
+
+            if (e.Button == SButton.G)
+            {
+                BroadcastMessage message = new BroadcastMessage();
+                this.Helper.Multiplayer.SendMessage(message, "MyMessageType", modIDs: new[] { Util.ModManifest.UniqueID });
+
+            }
+        }
+#endif
         internal void PayTaxes(int Tax = 0)
         {
             if (Tax == 0) Tax = State.PendingTaxAmount;
@@ -200,7 +221,10 @@ namespace EconomyMod
             State.PostPoneDaysLeft = State.PostPoneDaysLeftDefault;
             Game1.addHUDMessage(new HUDMessage(Helper.Translation.Get("TaxPaidText").ToString().Replace("#Tax#", $"{Tax}"), 2));
 
+            OnPayTaxesCompleted?.Invoke(this, Tax);
         }
+
+
 
         private void PostponePayment(int tax)
         {
@@ -209,7 +233,9 @@ namespace EconomyMod
                 State.PostPoneDaysLeft -= 1;
             State.PendingTaxAmount += State.PendingTaxAmount / 5;
             State.PendingTaxAmount += tax + tax / 5;
+
             Game1.chatBox.addInfoMessage(Helper.Translation.Get("PostponeChatText").ToString().Replace("#playerName#", Game1.player.displayName).Replace("#Tax#", $"{State.PendingTaxAmount}"));
+            OnPostPoneTaxesCompleted?.Invoke(this, State.PendingTaxAmount);
 
         }
     }

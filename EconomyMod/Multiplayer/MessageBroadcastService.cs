@@ -74,6 +74,7 @@ namespace EconomyMod.Multiplayer
         private void PaidTaxes(BroadcastMessage message)
         {
             //TODO: Localization
+            //TODO: fix Gender identification.
             Game1.chatBox.addInfoMessage($"{message.DisplayName} paid his taxes");
         }
         private void PostPone(BroadcastMessage message)

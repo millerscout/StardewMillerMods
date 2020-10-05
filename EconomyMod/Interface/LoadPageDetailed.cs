@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using EconomyMod.Interface.PageContent;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI.Events;
@@ -13,7 +11,7 @@ using StardewValley.Menus;
 
 namespace EconomyMod.Interface
 {
-    public class EconomyPage : IClickableMenu
+    public class LoadPageDetailed: IClickableMenu
     {
         private const int Width = 800;
 
@@ -22,30 +20,15 @@ namespace EconomyMod.Interface
         public TaxationService taxation;
         private string hoverText;
         public int currentTab;
-        internal int contentId = 0;
+
 
         public event EventHandler<Tuple<int, int>> OnHover;
         public event EventHandler<Tuple<int, int>> OnLeftClick;
         public event EventHandler<SpriteBatch> OnDraw;
-        public EconomyPage(IModEvents events, TaxationService taxation)
+        public LoadPageDetailed(IModEvents events, TaxationService taxation)
             : base(Game1.activeClickableMenu.xPositionOnScreen, Game1.activeClickableMenu.yPositionOnScreen + 10, Width, Game1.activeClickableMenu.height)
         {
             this.taxation = taxation;
-
-
-            //TODO: Localization
-            //var BalanceSubMenu = new Submenu.EconomicReportSubmenu(this);
-            //sideTabs.Add(0, BalanceSubMenu.sideTabButton);
-
-            //var LoanSubMenu = new Submenu.LoanSubmenu(this);
-            //sideTabs.Add(1, LoanSubMenu.sideTabButton);
-
-            //sideTabs[0].upNeighborID = -1;
-            //sideTabs[0].upNeighborImmutable = true;
-
-            //sideTabs[sideTabs.Count - 1].upNeighborID = -1;
-            //sideTabs[sideTabs.Count - 1].upNeighborImmutable = true;
-
 
             events.Display.MenuChanged += OnMenuChanged;
 
@@ -62,14 +45,14 @@ namespace EconomyMod.Interface
                 yPositionOnScreen = Game1.activeClickableMenu.yPositionOnScreen + 10;
                 height = Game1.activeClickableMenu.height;
 
-                //for (int i = 0; i < Slots.Count; ++i)
-                //{
-                //    var next = Slots[i];
-                //    next.bounds.X = xPositionOnScreen + Game1.tileSize / 4;
-                //    next.bounds.Y = yPositionOnScreen + Game1.tileSize * 5 / 4 + Game1.pixelZoom + i * (height - Game1.tileSize * 2) / 7;
-                //    next.bounds.Width = width - Game1.tileSize / 2;
-                //    next.bounds.Height = (height - Game1.tileSize * 2) / 7 + Game1.pixelZoom;
-                //}
+                for (int i = 0; i < Slots.Count; ++i)
+                {
+                    var next = Slots[i];
+                    next.bounds.X = xPositionOnScreen + Game1.tileSize / 4;
+                    next.bounds.Y = yPositionOnScreen + Game1.tileSize * 5 / 4 + Game1.pixelZoom + i * (height - Game1.tileSize * 2) / 7;
+                    next.bounds.Width = width - Game1.tileSize / 2;
+                    next.bounds.Height = (height - Game1.tileSize * 2) / 7 + Game1.pixelZoom;
+                }
             }
         }
 

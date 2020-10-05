@@ -19,11 +19,10 @@ namespace EconomyMod.Interface
 {
     public class EconomyInterfaceHandler
     {
-        private List<ContentElement> Elements = new List<ContentElement>();
         private EconomyPageButton economyPageButton;
         private EconomyPage EconomyPage;
 
-        private int _modOptionsTabPageNumber;
+        private int pageNumber;
         private readonly TaxationService taxation;
 
         public EconomyInterfaceHandler(TaxationService taxation)
@@ -31,12 +30,6 @@ namespace EconomyMod.Interface
             Util.Helper.Events.Display.MenuChanged += MenuChanged;
             this.taxation = taxation;
             ModConfig modConfig = Util.Helper.ReadConfig<ModConfig>();
-
-            Version thisVersion = Assembly.GetAssembly(this.GetType()).GetName().Version;
-
-            Elements.Add(new ContentElement(Util.Helper.Translation.Get("BalanceReportText")));
-            Elements.Add(new ContentElement(() => $"{Util.Helper.Translation.Get("CurrentLotValueText")}: {taxation.LotValue.Sum}"));
-            Elements.Add(new ContentElement(() => $"{Util.Helper.Translation.Get("CurrentTaxBalance")}: {taxation.State?.PendingTaxAmount}"));
 
         }
 
@@ -66,6 +59,8 @@ namespace EconomyMod.Interface
                 {
                     List<IClickableMenu> tabPages = gameMenu.pages;
                     tabPages.Remove(EconomyPage);
+                    EconomyPage.contentId = 0;
+                    ////TODO: Dispose unused resources.
                 }
             }
 
@@ -74,7 +69,7 @@ namespace EconomyMod.Interface
             {
                 if (economyPageButton == null)
                 {
-                    EconomyPage = new EconomyPage(Elements, Util.Helper.Events, taxation);
+                    EconomyPage = new EconomyPage(Util.Helper.Events, taxation);
                     economyPageButton = new EconomyPageButton(Util.Helper);
                 }
 
@@ -82,7 +77,7 @@ namespace EconomyMod.Interface
                 economyPageButton.OnLeftClicked += OnButtonLeftClicked;
                 List<IClickableMenu> tabPages = newMenu.pages;
 
-                _modOptionsTabPageNumber = tabPages.Count;
+                pageNumber = tabPages.Count;
                 tabPages.Add(EconomyPage);
             }
         }
@@ -90,7 +85,7 @@ namespace EconomyMod.Interface
         private void SetActiveClickableMenuToModOptionsPage()
         {
             if (Game1.activeClickableMenu is GameMenu menu)
-                menu.currentTab = _modOptionsTabPageNumber;
+                menu.currentTab = pageNumber;
         }
 
         private void DrawButton(object sender, EventArgs e)
@@ -98,7 +93,7 @@ namespace EconomyMod.Interface
             if (Game1.activeClickableMenu is GameMenu gameMenu &&
                 gameMenu.currentTab != 3) //don't render when the map is showing
             {
-                if (gameMenu.currentTab == _modOptionsTabPageNumber)
+                if (gameMenu.currentTab == pageNumber)
                 {
                     economyPageButton.yPositionOnScreen = Game1.activeClickableMenu.yPositionOnScreen + 24;
                 }

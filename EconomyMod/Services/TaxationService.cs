@@ -47,10 +47,6 @@ namespace EconomyMod
                     return ItemPrices.Sum();
                 });
             }
-
-#if DEBUG
-            Util.Helper.Events.Input.ButtonPressed += this.OnButtonPressed;
-#endif
         }
 
         private void GameLoop_ReturnedToTitle(object sender, ReturnedToTitleEventArgs e)
@@ -73,7 +69,7 @@ namespace EconomyMod
             if (State == null)
                 State = new SaveState();
 
-            if (!Game1.player.useSeparateWallets && !Game1.player.IsLocalPlayer)
+            if (!Game1.player.useSeparateWallets && !Game1.IsServer)
             {
                 return;
             }
@@ -194,25 +190,15 @@ namespace EconomyMod
             }
 
         }
-
-#if DEBUG
-        private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
-        {
-            // ignore if player hasn't loaded a save yet
-            if (!Context.IsWorldReady)
-                return;
-
-            if (e.Button == SButton.G)
-            {
-                BroadcastMessage message = new BroadcastMessage();
-                Util.Helper.Multiplayer.SendMessage(message, "MyMessageType", modIDs: new[] { Util.ModManifest.UniqueID });
-
-            }
-        }
-#endif
         internal void PayTaxes(int Tax = 0)
         {
             if (Tax == 0) Tax = State.PendingTaxAmount;
+            if (Tax > Game1.player.Money)
+            {
+                //TODO: Translation
+                Game1.addHUDMessage(new HUDMessage("you don't have enough money to pay.", 3));
+                return;
+            }
             Game1.player.Money = Math.Max(0, Game1.player.Money - Tax);
             State.PendingTaxAmount = 0;
             State.PostPoneDaysLeft = State.PostPoneDaysLeftDefault;

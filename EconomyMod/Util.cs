@@ -15,6 +15,9 @@ namespace EconomyMod
         public static ModConfig Config;
 
         public static IManifest ModManifest;
+
+        public static bool IsDebug { get; internal set; }
+
         public static IModHelper Helper;
         public static bool IsValidMultiplayer => Context.IsWorldReady && Game1.IsMultiplayer;
     }

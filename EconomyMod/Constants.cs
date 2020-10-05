@@ -8,6 +8,7 @@ namespace EconomyMod
 {
     public static class Constants
     {
-        public const int sideTab_widthToMoveActiveTab = 8;
+        public const int sideTab_widthToMoveActiveTab = 16;
+        public const int MenuWidth = 800;
     }
 }

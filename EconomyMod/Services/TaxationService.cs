@@ -19,8 +19,8 @@ namespace EconomyMod
         public SaveState State;
         private WorldItemScanner WorldItemScanner;
         public LotValue LotValue;
-        public event EventHandler<int> OnPayTaxesCompleted;
-        public event EventHandler<int> OnPostPoneTaxesCompleted;
+        public event EventHandler<EventHandlerMessage> OnPayTaxesCompleted;
+        public event EventHandler<EventHandlerMessage> OnPostPoneTaxesCompleted;
 
 
         internal bool AskedForPaymentToday { get; set; }
@@ -195,8 +195,7 @@ namespace EconomyMod
             if (Tax == 0) Tax = State.PendingTaxAmount;
             if (Tax > Game1.player.Money)
             {
-                //TODO: Translation
-                Game1.addHUDMessage(new HUDMessage("you don't have enough money to pay.", 3));
+                Game1.addHUDMessage(new HUDMessage(Util.Helper.Translation.Get("PayTax_NotEnoughMoneyText"), 3));
                 return;
             }
             Game1.player.Money = Math.Max(0, Game1.player.Money - Tax);
@@ -204,7 +203,8 @@ namespace EconomyMod
             State.PostPoneDaysLeft = State.PostPoneDaysLeftDefault;
             Game1.addHUDMessage(new HUDMessage(Util.Helper.Translation.Get("TaxPaidText").ToString().Replace("#Tax#", $"{Tax}"), 2));
 
-            OnPayTaxesCompleted?.Invoke(this, Tax);
+
+            OnPayTaxesCompleted?.Invoke(this, new EventHandlerMessage(Tax, Game1.player.IsMale));
         }
 
 
@@ -218,7 +218,7 @@ namespace EconomyMod
             State.PendingTaxAmount += tax + tax / 5;
 
             Game1.chatBox.addInfoMessage(Util.Helper.Translation.Get("PostponeChatText").ToString().Replace("#playerName#", Game1.player.displayName).Replace("#Tax#", $"{State.PendingTaxAmount}"));
-            OnPostPoneTaxesCompleted?.Invoke(this, State.PendingTaxAmount);
+            OnPostPoneTaxesCompleted?.Invoke(this, new EventHandlerMessage(State.PendingTaxAmount, Game1.player.IsMale));
 
         }
     }

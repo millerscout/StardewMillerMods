@@ -2,7 +2,7 @@ namespace EconomyMod
 {
     public class ModConfig
     {
-        public int LotValue { get; set; } = 1500000;
+        public int LotValue { get; set; } = 800000;
         public TaxPaymentType TaxPaymentType { get; set; }
         public byte ThresholdInPercentageToAskAboutPayment { get; set; } = 60;
         public bool IncludeGreenhouseOnLotValue { get; set; } = true;

@@ -31,26 +31,28 @@ namespace EconomyMod.Multiplayer
 
         }
 
-        private void Taxation_OnPostPoneTaxesCompleted(object sender, int tax)
+        private void Taxation_OnPostPoneTaxesCompleted(object sender, EventHandlerMessage emessage)
         {
             if (Util.IsValidMultiplayer)
             {
                 BroadcastMessage message = new BroadcastMessage()
                 {
-                    Tax = tax,
+                    Tax = emessage.tax,
+                    IsMale = emessage.isMale,
                     DisplayName = Game1.player.displayName
                 };
                 Util.Helper.Multiplayer.SendMessage(message, $"{BroadcastType.Taxation_Postpone}", modIDs: new[] { Util.ModManifest.UniqueID });
             }
         }
 
-        private void Taxation_OnPayTaxesCompleted(object sender, int tax)
+        private void Taxation_OnPayTaxesCompleted(object sender, EventHandlerMessage emessage)
         {
             if (Util.IsValidMultiplayer)
             {
                 BroadcastMessage message = new BroadcastMessage()
                 {
-                    Tax = tax,
+                    Tax = emessage.tax,
+                    IsMale = emessage.isMale,
                     DisplayName = Game1.player.displayName
                 };
                 Util.Helper.Multiplayer.SendMessage(message, $"{BroadcastType.Taxation_Paid}", modIDs: new[] { Util.ModManifest.UniqueID });
@@ -73,13 +75,12 @@ namespace EconomyMod.Multiplayer
 
         private void PaidTaxes(BroadcastMessage message)
         {
-            //TODO: Localization
-            //TODO: fix Gender identification.
-            Game1.chatBox.addInfoMessage($"{message.DisplayName} paid his taxes");
+            Game1.chatBox.addInfoMessage(message.IsMale
+                ? Util.Helper.Translation.Get("playerPaidTaxesMaleText").ToString().Replace("#playerName#", message.DisplayName)
+                : Util.Helper.Translation.Get("playerPaidTaxesFemaleText").ToString().Replace("#playerName#", message.DisplayName));
         }
         private void PostPone(BroadcastMessage message)
         {
-            //TODO: Localization
             Game1.chatBox.addInfoMessage(Util.Helper.Translation.Get("PostponeChatText").ToString().Replace("#playerName#", message.DisplayName).Replace("#Tax#", $"{message.Tax}"));
         }
     }

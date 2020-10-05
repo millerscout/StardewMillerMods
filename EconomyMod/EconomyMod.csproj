@@ -52,17 +52,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
-    <Compile Include="Interface\EconomyInterfaceHandler.cs" />
-    <Compile Include="Interface\EconomyPage.cs" />
-    <Compile Include="Interface\EconomyPageButton.cs" />
     <Compile Include="Interface\InterfaceFramework.cs" />
     <Compile Include="Interface\InterfaceHelper.cs" />
     <Compile Include="Interface\LoadPageDetailed.cs" />
     <Compile Include="Interface\PageContent\ContentElement.cs" />
     <Compile Include="Interface\PageContent\ContentElementCheckbox.cs" />
     <Compile Include="Interface\Submenu\EconomyPageRework.cs" />
-    <Compile Include="Interface\Submenu\LoanSubmenu.cs" />
-    <Compile Include="Interface\Submenu\EconomicReportSubmenu.cs" />
     <Compile Include="ModConfig.cs" />
     <Compile Include="Model\LotValue.cs" />
     <Compile Include="Model\SaveState.cs" />
@@ -72,6 +67,7 @@
     <Compile Include="Multiplayer\Messages\BroadcastMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\LoanService.cs" />
+    <Compile Include="Multiplayer\Messages\EventHandlerMessage.cs" />
     <Compile Include="Services\TaxationService.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>

@@ -17,7 +17,7 @@ namespace EconomyMod
     public class ModEntry : Mod
     {
         private TaxationService taxation;
-        public EconomyInterfaceHandler Interface { get; set; }
+        //public EconomyInterfaceHandler Interface { get; set; }
         public MessageBroadcastService messageBroadcast { get; set; }
         public override void Entry(IModHelper helper)
         {
@@ -31,10 +31,9 @@ namespace EconomyMod
             framework.AddNewPage(() => new EconomyPageRework(
                 framework,
                 Util.Helper.Content.Load<Texture2D>($"assets/Interface/tabIcon.png"),
-                Util.Helper.Translation.Get("BalanceReportText"),
-                taxation), 0, new SidetabData(Util.Helper.Content.Load<Texture2D>($"assets/Interface/sidebarButtonReport.png"), "Tax payment and report", 0));
+                Util.Helper.Translation.Get("BalanceReportText"), taxation), 0, new SidetabData(Util.Helper.Content.Load<Texture2D>($"assets/Interface/sidebarButtonReport.png"), Util.Helper.Translation.Get("Sidetab_TaxPaymentReportText"), 0));
 
-            framework.AddNewPage(() => new LoanPageRework(framework, taxation), 0, new SidetabData(Util.Helper.Content.Load<Texture2D>($"assets/Interface/LoanButton.png"), "Loan", 0));
+            //framework.AddNewPage(() => new LoanPageRework(framework, taxation), 0, new SidetabData(Util.Helper.Content.Load<Texture2D>($"assets/Interface/LoanButton.png"), "Loan", 0));
 
 
 

@@ -11,6 +11,7 @@ namespace EconomyMod.Multiplayer.Messages
         public BroadcastType Type { get; set; }
         public string DisplayName { get; set; }
         public int Tax { get; set; }
+        public bool IsMale { get; set; }
     }
     public enum BroadcastType
     {

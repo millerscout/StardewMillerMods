@@ -24,6 +24,7 @@ namespace EconomyMod.Interface
         public List<Func<Page>> PageFactory { get; }
         private Dictionary<int, Page> Pages { get; }
         private Dictionary<int, List<ClickableTextureComponent>> sideTabs = new Dictionary<int, List<ClickableTextureComponent>>();
+        private string hoverText;
 
         /// <summary>
         /// DO NOT SET THIS VALUE USE setCurrentSideTab Instead.
@@ -208,7 +209,7 @@ namespace EconomyMod.Interface
                     if (gameMenu.currentTab >= 8 && !page.active || gameMenu.currentTab < 8 && page.pageNumber != gameMenu.currentTab) continue;
                     if (!GameMenu.forcePreventClose)
                     {
-                        page.hoverText = "";
+                        hoverText = "";
                     }
 
                     if (sideTabs.ContainsKey(page.pageGroup))
@@ -220,7 +221,7 @@ namespace EconomyMod.Interface
 
                             if (tab.containsPoint(Game1.getMouseX(), Game1.getMouseY()))
                             {
-                                page.hoverText = tab.hoverText;
+                                hoverText = tab.hoverText;
                             }
 
                         }
@@ -231,6 +232,7 @@ namespace EconomyMod.Interface
                         page.Draw?.Invoke();
                         page.DrawHover?.Invoke(Game1.getMouseX(), Game1.getMouseY());
                     }
+                    IClickableMenu.drawHoverText(Game1.spriteBatch, hoverText, Game1.smallFont);
 
                 }
 

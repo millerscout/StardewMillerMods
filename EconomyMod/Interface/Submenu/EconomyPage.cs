@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EconomyMod.Helpers;
 using EconomyMod.Interface.PageContent;
+using EconomyMod.Model;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -11,19 +13,41 @@ using StardewValley.Menus;
 
 namespace EconomyMod.Interface.Submenu
 {
-    public class EconomyPageRework : Page
+    public class EconomyPage : Page
     {
         private TaxationService taxation;
 
         private ClickableComponent payButton;
-        public EconomyPageRework(UIFramework ui, Texture2D texture, string Hovertext, TaxationService taxation) : base(ui, texture, Hovertext)
+        public EconomyPage(UIFramework ui, Texture2D texture, string Hovertext, TaxationService taxation) : base(ui, texture, Hovertext)
         {
             this.taxation = taxation;
-            Elements.Add(new ContentElement(Util.Helper.Translation.Get("BalanceReportText")));
-            Elements.Add(new ContentElement(() => $"{Util.Helper.Translation.Get("CurrentLotValueText")}"));
-            Elements.Add(new ContentElement(() => $"{taxation.LotValue.Sum}g"));
-            Elements.Add(new ContentElement(() => $"{Util.Helper.Translation.Get("CurrentTaxBalance")}:"));
-            Elements.Add(new ContentElement(() => $"{taxation.State?.PendingTaxAmount}g"));
+            //Elements.Add(new OptionsElement(Game1.content.LoadString("Strings\\StringsFromCSFiles:OptionsPage.cs.11233")));
+            //Elements.Add(new ContentElementText(Game1.content.LoadString("Strings\\StringsFromCSFiles:OptionsPage.cs.11234")));
+            Elements.Add(new ContentElementHeaderText(Util.Helper.Translation.Get("BalanceReportText")));
+            Elements.Add(new ContentElementText(() => $"{Util.Helper.Translation.Get("CurrentLotValueText")}: {taxation.LotValue.Sum}g"));
+            Elements.Add(new ContentElementText(() => $"{Util.Helper.Translation.Get("CurrentTaxBalance")}: {taxation.State?.PendingTaxAmount}g"));
+
+            TaxSchedule scheduledTask = null;
+            CustomWorldDate date = null;
+            load();
+            void load()
+            {
+                scheduledTask = taxation.State?.ScheduledTax.OrderBy(c => c.DayCount).FirstOrDefault(c => !c.Paid);
+                date = scheduledTask?.DayCount.ToWorldDate();
+            };
+
+            Elements.Add(new ContentElementText(() =>
+            {
+                load();
+
+                return scheduledTask != null ? Util.Helper.Translation.Get("NextScheduledTaxText") : Util.Helper.Translation.Get("NoBillsForYouText");
+            }));
+            Elements.Add(new ContentElementText(() =>
+            {
+                return scheduledTask != null ? $"{Game1.content.LoadString("Strings\\StringsFromCSFiles:Utility.cs.5678", date.DayOfMonth, (LocalizedContentManager.CurrentLanguageCode == LocalizedContentManager.LanguageCode.es) ? date.Season.GetLocalizedSeason().ToLower() : date.Season.GetLocalizedSeason(), date.Year)} - {scheduledTask.Sum}g" : "";
+
+            }));
+
 
             payButton = new ClickableComponent(new Rectangle(xPositionOnScreen + 64, Game1.activeClickableMenu.height + 50, (int)Game1.dialogueFont.MeasureString("_____________").X, 96), "", "_____________");
 
@@ -65,7 +89,7 @@ namespace EconomyMod.Interface.Submenu
             {
                 payButton.scale = 0f;
             }
-            
+
 
         }
 
@@ -80,7 +104,7 @@ namespace EconomyMod.Interface.Submenu
                 if (currentItemIndex >= 0 &&
                     currentItemIndex + i < Elements.Count)
                 {
-                    Elements[currentItemIndex + i].Draw(Game1.spriteBatch, Slots[i].bounds.X, Slots[i].bounds.Y);
+                    Elements[currentItemIndex + i].draw(Game1.spriteBatch, Slots[i].bounds.X, Slots[i].bounds.Y);
                 }
             }
             //}
@@ -102,10 +126,11 @@ namespace EconomyMod.Interface.Submenu
 
         private void DrawPayButton()
         {
-            if (taxation.State.PendingTaxAmount != 0)
+            if (taxation.State != null && taxation.State.PendingTaxAmount != 0)
             {
+                var qtd = taxation.State.AllScheduledTax.Count();
                 IClickableMenu.drawTextureBox(Game1.spriteBatch, Game1.mouseCursors, new Rectangle(432, 439, 9, 9), payButton.bounds.X, payButton.bounds.Y, payButton.bounds.Width, payButton.bounds.Height, (payButton.scale > 0f) ? Color.Wheat : Color.White, 4f);
-                Utility.drawTextWithShadow(Game1.spriteBatch, "Pay", Game1.dialogueFont, new Vector2(payButton.bounds.Center.X, payButton.bounds.Center.Y + 4) - Game1.dialogueFont.MeasureString("Pay") / 2f, Game1.textColor, 1f, -1f, -1, -1, 0f);
+                Utility.drawTextWithShadow(Game1.spriteBatch, Util.Helper.Translation.Get("PayText"), Game1.dialogueFont, new Vector2(payButton.bounds.Center.X, payButton.bounds.Center.Y + 4) - Game1.dialogueFont.MeasureString(Util.Helper.Translation.Get("PayText")) / 2f, Game1.textColor, 1f, -1f, -1, -1, 0f);
             }
         }
 

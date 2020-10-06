@@ -23,7 +23,6 @@ namespace EconomyMod
         public event EventHandler<EventHandlerMessage> OnPostPoneTaxesCompleted;
 
 
-        internal bool AskedForPaymentToday { get; set; }
         public TaxationService()
         {
             Util.Helper.Events.GameLoop.DayStarted += this.GameLoop_DayStarted;
@@ -36,27 +35,27 @@ namespace EconomyMod
             {
                 WorldItemScanner = new WorldItemScanner(Util.Helper.Reflection);
 
-                LotValue.Add(() =>
-                {
-                    var items = WorldItemScanner.GetAllOwnedItems();
+                LotValue.Add("OwnedItems", () =>
+                 {
+                     var items = WorldItemScanner.GetAllOwnedItems();
 
-                    var ItemPrices = items.Select(c =>
-                        c.Item.GetType().GetProperty("Price") != null ? (int)c.Item.GetType().GetProperty("Price").GetValue(c.Item) : c.Item.salePrice()
-                    );
+                     var ItemPrices = items.Select(c => new
+                     {
+                         c.Item.DisplayName,
+                         price = c.Item.GetType().GetProperty("Price") != null ? (int)c.Item.GetType().GetProperty("Price").GetValue(c.Item) : c.Item.salePrice()
+                     });
 
-                    return ItemPrices.Sum();
-                });
+                     return ItemPrices.Sum(c => c.price);
+                 });
             }
         }
 
         private void GameLoop_ReturnedToTitle(object sender, ReturnedToTitleEventArgs e)
         {
-            this.AskedForPaymentToday = false;
         }
 
         private void DayEnding(object sender, DayEndingEventArgs e)
         {
-            this.AskedForPaymentToday = false;
             Util.Helper.Data.WriteJsonFile(Path.Combine("Save", $"{Game1.player.displayName}_{Game1.uniqueIDForThisGame}_data"), State);
         }
 
@@ -65,71 +64,99 @@ namespace EconomyMod
             if (!Context.IsWorldReady)
                 return;
 
-            State = Util.Helper.Data.ReadJsonFile<SaveState>(Path.Combine("Save", $"{Game1.player.displayName}_{Game1.uniqueIDForThisGame}_data"));
-            if (State == null)
-                State = new SaveState();
+            LoadState();
 
             if (!Game1.player.useSeparateWallets && !Game1.IsServer)
             {
                 return;
             }
-            if (!this.AskedForPaymentToday)
+            this.CalculateLotValue();
+
+            if (NeedToCalculateUpcomingTax())
             {
-                int CurrentLotValue = this.CalculateLotValue();
-                Util.Monitor.Log($"{Util.Helper.Translation.Get("PostponedPaymentText")}: {State.PendingTaxAmount}.", LogLevel.Info);
-                Util.Monitor.Log($"{Util.Helper.Translation.Get("CurrentLotValueText")}: {CurrentLotValue}.", LogLevel.Info);
+                State.CalculatedNextTax(Util.Config.ScheduledTaxCount);
+            }
 
-                int Tax = CurrentLotValue / 28 / 4 + State.PendingTaxAmount;
-                Util.Monitor.Log($"[Hardcoded for now] {Util.Helper.Translation.Get("PaymentModeText")}: {Util.Helper.Translation.Get("DailyText")}, {Util.Helper.Translation.Get("TaxValueText")}: {Tax}", LogLevel.Info);
+            if (State.HasPendingTax)
+            {
+
+                //Util.Monitor.Log($"{Util.Helper.Translation.Get("PostponedPaymentText")}: {State.PendingTaxAmount}.", LogLevel.Info);
+                //Util.Monitor.Log($"{Util.Helper.Translation.Get("CurrentLotValueText")}: {CurrentLotValue}.", LogLevel.Info);
+
+                //int Tax = GetAmountByPaymentType(CurrentLotValue);
+                var Taxes = State.AllScheduledTax;
+
+                //Util.Monitor.Log($"[Hardcoded for now] {Util.Helper.Translation.Get("PaymentModeText")}: {Util.Helper.Translation.Get("DailyText")}, {Util.Helper.Translation.Get("TaxValueText")}: {Tax}", LogLevel.Info);
+
                 Util.Monitor.Log($"{Util.Helper.Translation.Get("SeparateWalletsText")}: {Game1.player.useSeparateWallets}", LogLevel.Info);
-                if (Game1.player.useSeparateWallets)
+
+                foreach (var tax in Taxes)
                 {
-
-                    int validFarmers = Game1.getAllFarmers().Select(c => c.name).Where(c => !string.IsNullOrEmpty(c)).Count();
-
-                    Util.Monitor.Log($"{Util.Helper.Translation.Get("ValidFarmersText")}: {validFarmers}", LogLevel.Info);
-                    Tax /= validFarmers;
-                    Util.Monitor.Log($"{Util.Helper.Translation.Get("TaxEachFarmerText")}: {Tax}", LogLevel.Info);
-                }
-
-                if (Game1.player.Money - Tax <= 0 || Game1.player.Money == 0)
-                {
-                    PostponePayment(Tax);
-                    return;
-                }
-                if (State.PostPoneDaysLeft == 0)
-                {
-                    this.PayTaxes(Tax);
-                    return;
-                }
-
-
-                if (Tax * 100 / Game1.player.Money >= Util.Config.ThresholdInPercentageToAskAboutPayment)
-                {
-                    Response[] responses = {
-                    new Response ("A", $"{Util.Helper.Translation.Get("PayText")} ( {Tax} )G"),
-                    new Response ("B", $"{Util.Helper.Translation.Get("PostponeText")} ( {Tax+Tax/5 } ) G")
-                };
-                    Game1.currentLocation.createQuestionDialogue($"{Util.Helper.Translation.Get("TaxAboveThresholdText")}", responses, (Farmer _, string answer) =>
+                    if (Game1.player.Money - tax.Sum <= 0 || Game1.player.Money == 0)
                     {
-                        switch (answer.Split(' ')[0])
+                        PostponePayment(tax);
+                        return;
+                    }
+                    if (State.PostPoneDaysLeft == 0)
+                    {
+                        this.PayTaxes(tax);
+                        return;
+                    }
+
+
+                    if (tax.Sum * 100 / Game1.player.Money >= Util.Config.ThresholdInPercentageToAskAboutPayment)
+                    {
+                        Response[] responses = {
+                    new Response ("A", $"{Util.Helper.Translation.Get("PayText")} ( {tax.Sum} )G"),
+                    new Response ("B", $"{Util.Helper.Translation.Get("PostponeText")} ( {tax.Sum+tax.Sum/5 } ) G")
+                };
+                        Game1.currentLocation.createQuestionDialogue($"{Util.Helper.Translation.Get("TaxAboveThresholdText")}", responses, (Farmer _, string answer) =>
                         {
-                            case "A":
-                                this.PayTaxes(Tax);
-                                break;
+                            switch (answer.Split(' ')[0])
+                            {
+                                case "A":
+                                    this.PayTaxes(tax);
+                                    break;
 
-                            case "B":
-                                this.PostponePayment(Tax);
-                                break;
-                        }
-                    });
+                                case "B":
+                                    this.PostponePayment(tax);
+                                    break;
+                            }
+                        });
 
+                    }
+                    else
+                    {
+                        this.PayTaxes(tax);
+                    }
                 }
-                else
+            }
+        }
+
+        private bool NeedToCalculateUpcomingTax()
+        {
+            var played = Game1.stats.DaysPlayed;
+            return !State.ScheduledTax.Any(c => c.DayCount> played);
+        }
+
+        private void LoadState()
+        {
+            State = Util.Helper.Data.ReadJsonFile<SaveState>(Path.Combine("Save", $"{Game1.player.displayName}_{Game1.uniqueIDForThisGame}_data"));
+            if (State == null)
+                State = new SaveState()
                 {
-                    this.PayTaxes(Tax);
-                }
-                this.AskedForPaymentToday = true;
+                    ReferenceDaysPlayed = Game1.stats.DaysPlayed,
+                    Day = Game1.dayOfMonth
+                };
+
+            if (State.ReferenceDaysPlayed == 0) State.ReferenceDaysPlayed = Game1.stats.DaysPlayed;
+            if (!State.Day.HasValue || State.Day != Game1.dayOfMonth)
+            {
+                State.Day = Game1.dayOfMonth;
+            }
+            if (State.ScheduledTax == null)
+            {
+                State.ScheduledTax = new List<TaxSchedule>();
             }
         }
 
@@ -148,21 +175,30 @@ namespace EconomyMod
             }
         }
 
-        private int CalculateLotValue()
+        private void CalculateLotValue()
         {
             var farm = Game1.getFarm();
 
             CalculateUsableSoil();
 
-            int depreciationPercentage = (100 - (State.UsableSoil - CalculateDepreciation()) * 100 / State.UsableSoil);
-            return depreciationPercentage > 0 ? LotValue.Sum / depreciationPercentage : LotValue.Sum;
+
+            State.Detailed = new TaxDetailed
+            {
+                UsableSoil = State.UsableSoil,
+                LotValue = LotValue.Sum
+            };
+            State.Detailed.CurrentDepreciation = CalculateDepreciation();
+
 
             int CalculateDepreciation()
             {
                 int depreciationObjectsCount = 0;
                 foreach (int item in Util.Config.ListOfDepreciationObjects)
                 {
-                    depreciationObjectsCount += farm.numberOfObjectsOfType(item, false);
+                    int count = farm.numberOfObjectsOfType(item, false);
+                    depreciationObjectsCount += count;
+                    if (count > 0)
+                        State.Detailed.AddDepreciation(item, count);
                 }
                 return depreciationObjectsCount;
             }
@@ -190,36 +226,81 @@ namespace EconomyMod
             }
 
         }
-        internal void PayTaxes(int Tax = 0)
+        internal void PayTaxes(TaxSchedule Tax = null)
         {
-            if (Tax == 0) Tax = State.PendingTaxAmount;
-            if (Tax > Game1.player.Money)
+
+            if (Tax == null) Tax = State.AllScheduledTax.FirstOrDefault();
+            if (Tax.Sum > Game1.player.Money)
             {
                 Game1.addHUDMessage(new HUDMessage(Util.Helper.Translation.Get("PayTax_NotEnoughMoneyText"), 3));
                 return;
             }
-            Game1.player.Money = Math.Max(0, Game1.player.Money - Tax);
-            State.PendingTaxAmount = 0;
+            Game1.player.Money = Math.Max(0, Game1.player.Money - Tax.Sum);
+            Tax.Paid = true;
             State.PostPoneDaysLeft = State.PostPoneDaysLeftDefault;
-            Game1.addHUDMessage(new HUDMessage(Util.Helper.Translation.Get("TaxPaidText").ToString().Replace("#Tax#", $"{Tax}"), 2));
+            Game1.addHUDMessage(new HUDMessage(Util.Helper.Translation.Get("TaxPaidText").ToString().Replace("#Tax#", $"{Tax.Sum}"), 2));
 
 
-            OnPayTaxesCompleted?.Invoke(this, new EventHandlerMessage(Tax, Game1.player.IsMale));
+            OnPayTaxesCompleted?.Invoke(this, new EventHandlerMessage(Tax.Sum, Game1.player.IsMale));
         }
 
-
-
-        private void PostponePayment(int tax)
+        private void PostponePayment(TaxSchedule Tax)
         {
             Game1.addHUDMessage(new HUDMessage(Util.Helper.Translation.Get("PostponedPaymentText"), 2));
+
             if (State.PostPoneDaysLeft > 0)
                 State.PostPoneDaysLeft -= 1;
-            State.PendingTaxAmount += State.PendingTaxAmount / 5;
-            State.PendingTaxAmount += tax + tax / 5;
 
             Game1.chatBox.addInfoMessage(Util.Helper.Translation.Get("PostponeChatText").ToString().Replace("#playerName#", Game1.player.displayName).Replace("#Tax#", $"{State.PendingTaxAmount}"));
             OnPostPoneTaxesCompleted?.Invoke(this, new EventHandlerMessage(State.PendingTaxAmount, Game1.player.IsMale));
 
         }
+    }
+
+    public class TaxDetailed
+    {
+        public int UsableSoil { get; set; }
+        public int CurrentDepreciation { get; set; }
+        public int LotValue { get; set; }
+        public int DepreciationPercentage => (100 - (UsableSoil - CurrentDepreciation) * 100 / UsableSoil);
+        
+        public int TaxTotal => DepreciationPercentage > 0 ? LotValue / DepreciationPercentage : LotValue;
+        public Dictionary<int, int> depreciationList = new Dictionary<int, int>();
+        public int CalculateSum(int dayCount = 0)
+        {
+
+            int CalculatedSum = TaxTotal;
+            switch (Util.Config.TaxPaymentType)
+            {
+                case TaxPaymentType.Daily:
+                    CalculatedSum = TaxTotal / 28 / 4;
+                    break;
+                case TaxPaymentType.Weekly:
+                    CalculatedSum = TaxTotal / 7 / 4;
+                    break;
+            }
+            if (dayCount == 0)
+            {
+                for (int i = 0; i < Game1.stats.DaysPlayed - dayCount; i++)
+                {
+                    CalculatedSum += CalculatedSum / 5;
+                }
+            }
+            if (Game1.player.useSeparateWallets)
+            {
+                int validFarmers = Game1.getAllFarmers().Select(c => c.name).Where(c => !string.IsNullOrEmpty(c)).Count();
+
+                CalculatedSum /= validFarmers;
+                //Util.Monitor.Log($"{Util.Helper.Translation.Get("ValidFarmersText")}: {validFarmers}", LogLevel.Info);
+                //Util.Monitor.Log($"{Util.Helper.Translation.Get("TaxEachFarmerText")}: {CalculatedSum}", LogLevel.Info);
+            }
+            return CalculatedSum;
+        }
+
+        internal void AddDepreciation(int item, int count)
+        {
+            depreciationList.Add(item, count);
+        }
+
     }
 }

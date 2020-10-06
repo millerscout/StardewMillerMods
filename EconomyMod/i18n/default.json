@@ -20,5 +20,9 @@
     "Sidetab_TaxPaymentReportText": "Tax payment and report",
 
     "BalanceReportText": "Economic Report",
-    "CurrentTaxBalance": "Pending tax amount"
+    "CurrentTaxBalance": "Pending tax amount",
+
+    "NextScheduledTaxText": "Next scheduled tax:",
+    "NoBillsForYouText": "There's no bills for you right now :)"
+
 }

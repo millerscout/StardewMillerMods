@@ -20,5 +20,8 @@
     "Sidetab_TaxPaymentReportText": "Pagamento e relatório de impostos",
 
     "BalanceReportText": "Relatório Econômico",
-    "CurrentTaxBalance": "Montante de imposto pendente"
+    "CurrentTaxBalance": "Montante de imposto pendente",
+	
+	"NextScheduledTaxText": "Próximo imposto agendado:",
+    "NoBillsForYouText": "Não há contas para você no momento :)"
 }

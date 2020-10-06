@@ -1,13 +1,18 @@
+using System;
+
 namespace EconomyMod
 {
     public class ModConfig
     {
+        public DayOfWeek DayOfPaymentWeekly = DayOfWeek.Friday;
         public int LotValue { get; set; } = 800000;
         public TaxPaymentType TaxPaymentType { get; set; }
         public byte ThresholdInPercentageToAskAboutPayment { get; set; } = 60;
         public bool IncludeGreenhouseOnLotValue { get; set; } = true;
         public bool IncludeOwnedObjectsOnLotValue { get; set; } = true;
         public int GreenhouseValue { get; set; } = 35000; //value taken from Joja restoration.
+        public int ScheduledTaxCount { get; set; } = 7;
+        public bool TaxAfterFirstYear { get; set; } = true;
 
         public int[] ListOfDepreciationObjects = new int[] {
             746, //Jack O Lantern
@@ -25,11 +30,5 @@ namespace EconomyMod
             295, //Twig
             450, //Stone
         };
-        //public InterfaceConfiguration Interface { get; set; }
     }
-
-    //public class InterfaceConfiguration
-    //{
-    //    public int xPosition { get; set; }
-    //}
 }

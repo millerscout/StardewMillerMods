@@ -11,7 +11,7 @@ using StardewValley.BellsAndWhistles;
 
 namespace EconomyMod.Interface.PageContent
 {
-    public class ContentElement
+    public class ContentElementHeaderText : IContentElement
     {
         private const int DefaultX = 8;
         private const int DefaultY = 4;
@@ -24,13 +24,13 @@ namespace EconomyMod.Interface.PageContent
 
         public Rectangle Bounds { get { return _bounds; } }
 
-        public ContentElement(string label)
+        public ContentElementHeaderText(string label)
             : this(label, -1, -1, DefaultPixelSize * Game1.pixelZoom, DefaultPixelSize * Game1.pixelZoom)
         {
 
         }
 
-        public ContentElement(string label, int x, int y, int width, int height, int whichOption = -1)
+        public ContentElementHeaderText(string label, int x, int y, int width, int height, int whichOption = -1)
         {
             if (x < 0)
                 x = DefaultX * Game1.pixelZoom;
@@ -43,7 +43,7 @@ namespace EconomyMod.Interface.PageContent
             _whichOption = whichOption;
         }
 
-        public ContentElement(Func<string> p) : this("ignored", -1, -1, DefaultPixelSize * Game1.pixelZoom, DefaultPixelSize * Game1.pixelZoom)
+        public ContentElementHeaderText(Func<string> p) : this("ignored", -1, -1, DefaultPixelSize * Game1.pixelZoom, DefaultPixelSize * Game1.pixelZoom)
         {
             dynamicLabel = p;
         }
@@ -68,7 +68,7 @@ namespace EconomyMod.Interface.PageContent
 
         }
 
-        public virtual void Draw(SpriteBatch batch, int slotX, int slotY)
+        public virtual void draw(SpriteBatch batch, int slotX, int slotY)
         {
             string label = dynamicLabel == null ? _label : dynamicLabel();
             if (_whichOption < 0)

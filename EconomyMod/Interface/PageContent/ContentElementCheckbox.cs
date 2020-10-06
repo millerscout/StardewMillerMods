@@ -10,7 +10,7 @@ using StardewValley.Menus;
 
 namespace EconomyMod.Interface.PageContent
 {
-    class ContentElementCheckbox : ContentElement
+    class ContentElementCheckbox : ContentElementHeaderText
     {
         private const int PixelSize = 9;
 
@@ -53,10 +53,10 @@ namespace EconomyMod.Interface.PageContent
             }
         }
 
-        public override void Draw(SpriteBatch batch, int slotX, int slotY)
+        public override void draw(SpriteBatch batch, int slotX, int slotY)
         {
             batch.Draw(Game1.mouseCursors, new Vector2(slotX + Bounds.X, slotY + Bounds.Y), new Rectangle?(_isChecked ? OptionsCheckbox.sourceRectChecked : OptionsCheckbox.sourceRectUnchecked), Color.White * (_canClick ? 1f : 0.33f), 0.0f, Vector2.Zero, Game1.pixelZoom, SpriteEffects.None, 0.4f);
-            base.Draw(batch, slotX, slotY);
+            base.draw(batch, slotX, slotY);
         }
     }
 }

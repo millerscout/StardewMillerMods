@@ -20,5 +20,8 @@
     "Sidetab_TaxPaymentReportText": "Steuerzahlung und Bericht",
 
     "BalanceReportText": "Wirtschaftsbericht",
-    "CurrentTaxBalance": "Ausstehender Steuerbetrag"
+    "CurrentTaxBalance": "Ausstehender Steuerbetrag",
+	
+	"NextScheduledTaxText": "Nächste geplante Steuer:",
+    "NoBillsForYouText": "Derzeit gibt es keine Rechnungen für Sie :)"
 }

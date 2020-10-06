@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EconomyMod.Helpers;
 using EconomyMod.Interface.PageContent;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -299,7 +300,8 @@ namespace EconomyMod.Interface
     {
         public UIFramework ui;
 
-        public List<ContentElement> Elements = new List<ContentElement>();
+        //public List<OptionsElement> Elements = new List<OptionsElement>();
+        public List<IContentElement> Elements = new List<IContentElement>();
         public List<ClickableComponent> Slots = new List<ClickableComponent>();
         public Page(UIFramework ui, Texture2D Icon = null, string hoverText = null) : base(Game1.activeClickableMenu.xPositionOnScreen, Game1.activeClickableMenu.yPositionOnScreen + 10, Constants.MenuWidth, Game1.activeClickableMenu.height)
         {

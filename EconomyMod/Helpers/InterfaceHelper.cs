@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
 
-namespace EconomyMod.Interface
+namespace EconomyMod.Helpers
 {
     public static class InterfaceHelper
     {

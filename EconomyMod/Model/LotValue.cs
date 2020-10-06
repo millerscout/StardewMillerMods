@@ -10,7 +10,7 @@ namespace EconomyMod.Model
 {
     public class LotValue
     {
-        List<Func<int>> Values = new List<Func<int>>();
+        Dictionary<string, Func<int>> Values = new Dictionary<string, Func<int>>();
 
         public ModConfig Config { get; }
         public int Sum
@@ -18,32 +18,30 @@ namespace EconomyMod.Model
             get
             {
                 if (!Context.IsWorldReady) return 0;
-                return Values.Select(c => c()).Where(c => c > 0).Sum();
+                return Values.Select(c => c.Value()).Where(c => c > 0).Sum();
             }
         }
 
-        public void Add(Func<int> value)
+        public void Add(string Identifier, Func<int> value)
         {
-            Values.Add(value);
+            Values.Add(Identifier, value);
         }
 
 
         public void AddDefaultLotValue()
         {
 
-            Add(() =>
+            Add("GreenHouse",() =>
             {
                 if (Util.Config.IncludeGreenhouseOnLotValue)
                     return Game1.getFarm().IsGreenhouse ? Util.Config.GreenhouseValue : -Util.Config.GreenhouseValue;
                 return 0;
             });
 
-            Add(() =>
+            Add("LotValue",() =>
             {
                 return Util.Config.LotValue;
             });
-
-
 
         }
     }

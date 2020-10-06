@@ -4,6 +4,6 @@ namespace EconomyMod
     {
         Daily,
         Weekly,
-        Yearly
+        Montly
     }
 }

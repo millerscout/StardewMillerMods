@@ -14,23 +14,23 @@ namespace EconomyMod.Helpers
     {
         public enum InterfaceHelperType
         {
-            TextInsideButton,
-            Button,
-            Area,
-            CenterOfButton
+            Red,
+            Yellow,
+            Black,
+            Cyan
         }
 
         private static Color GetColorByType(InterfaceHelperType type)
         {
             switch (type)
             {
-                case InterfaceHelperType.TextInsideButton:
+                case InterfaceHelperType.Red:
                     return Color.Red;
-                case InterfaceHelperType.Button:
+                case InterfaceHelperType.Yellow:
                     return Color.Yellow;
-                case InterfaceHelperType.Area:
+                case InterfaceHelperType.Black:
                     return Color.Black;
-                case InterfaceHelperType.CenterOfButton:
+                case InterfaceHelperType.Cyan:
                     return Color.LightCyan;
                 default:
                     return Color.Black;
@@ -57,7 +57,7 @@ namespace EconomyMod.Helpers
 
         public static bool DrawGuidelines = false;
 
-        public static void Draw(Rectangle rectangle, InterfaceHelperType type = InterfaceHelperType.Area, bool center = false)
+        public static void Draw(Rectangle rectangle, InterfaceHelperType type = InterfaceHelperType.Black, bool center = false)
         {
             PrepareDraw();
             if (!DrawGuidelines) return;
@@ -69,7 +69,7 @@ namespace EconomyMod.Helpers
             batch.Draw(texture, new Rectangle(rectangle.X + rectangle.Width, rectangle.Y, 3, rectangle.Height), color);
 
             if (center)
-                Draw(new Vector2(rectangle.Center.X, rectangle.Center.Y), InterfaceHelperType.CenterOfButton);
+                Draw(new Vector2(rectangle.Center.X, rectangle.Center.Y), InterfaceHelperType.Cyan);
 
         }
 

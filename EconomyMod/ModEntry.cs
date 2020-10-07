@@ -34,6 +34,8 @@ namespace EconomyMod
                 Util.Helper.Content.Load<Texture2D>($"assets/Interface/tabIcon.png"),
                 Util.Helper.Translation.Get("BalanceReportText"), taxation), 0, new SidetabData(Util.Helper.Content.Load<Texture2D>($"assets/Interface/sidebarButtonReport.png"), Util.Helper.Translation.Get("Sidetab_TaxPaymentReportText"), 0));
 
+            taxation.OnTaxScheduleListUpdated += (object sender, IEnumerable<Model.TaxSchedule> collection) => framework.UpdateListDataList(collection);
+
             //framework.AddNewPage(() => new LoanPage(framework, taxation), 0, new SidetabData(Util.Helper.Content.Load<Texture2D>($"assets/Interface/LoanButton.png"), "Loan", 0));
 
 

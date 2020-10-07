@@ -48,7 +48,7 @@ namespace EconomyMod.Interface.Submenu
                     Utility.drawTextWithShadow(Game1.spriteBatch, "Loan Funds - Pelican Town 10000g", Game1.dialogueFont, btnPosition, Game1.textColor, 1f, -1f, -1, -1, 0f);
 
                     InterfaceHelper.Draw(LoanButton.bounds, center: true);
-                    InterfaceHelper.Draw(btnPosition, InterfaceHelper.InterfaceHelperType.TextInsideButton);
+                    InterfaceHelper.Draw(btnPosition, InterfaceHelper.InterfaceHelperType.Red);
                 }
             };
             this.LeftClickAction += Leftclick;

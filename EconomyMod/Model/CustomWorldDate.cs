@@ -44,6 +44,12 @@ namespace EconomyMod.Model
             return this;
         }
 
+        internal void SetToFirstDayOfSeason()
+        {
+            this.AddDays(this.DaysLeftToEndOfMonth);
+            this.AddDays(-27);
+        }
+
         public DayOfWeek Day => CalculateDay(DaysCount);
 
         private DayOfWeek CalculateDay(int days)
@@ -55,13 +61,28 @@ namespace EconomyMod.Model
         public int Year => ((DaysCount - 1) / 28 / 4) + 1;
         public int DayOfMonth => CalculateDayOfMonth();
 
+        public int DaysLeftToEndOfMonth => 28 - DayOfMonth;
+
         private int CalculateDayOfMonth()
         {
-            var wholeYearMonths = Math.Floor(DaysCount / 28f / 4);
-            var wholeMonth = 28f;
-            var ignoredDays = 112 * wholeYearMonths / DaysCount == 1 ? 112 * (wholeYearMonths - 1) : 112 * wholeYearMonths;
-            ignoredDays += ((DaysCount - ignoredDays) / 28 > 1 ? wholeMonth : 0);
-            return Convert.ToInt32(DaysCount - ignoredDays);
+            return calculate(DaysCount);
+
+            int calculate(int day)
+            {
+                var wholeYearMonths = day / 28f / 4;
+                var ignoredDays = wholeYearMonths > 1 ? Math.Floor(wholeYearMonths) * 28 * 4 : 0;
+                var result = Convert.ToInt32(day - ignoredDays);
+                if (result > 28)
+                {
+                    return calculate(result - 28);
+                }
+                return result;
+            }
+            //var wholeYearMonths = Math.Floor(DaysCount / 28f / 4);
+            //var wholeMonth = 28f;
+            //var ignoredDays = 112 * wholeYearMonths / DaysCount == 1 ? 112 * (wholeYearMonths - 1) : 112 * wholeYearMonths;
+            //ignoredDays += ((DaysCount - ignoredDays) / 28 > 1 ? wholeMonth : 0);
+            //return Convert.ToInt32(DaysCount - ignoredDays);
         }
 
         public int DaysCount { get; private set; }

@@ -128,7 +128,7 @@ namespace EconomyMod.Interface.Submenu
         {
             if (taxation.State != null && taxation.State.PendingTaxAmount != 0)
             {
-                var qtd = taxation.State.AllScheduledTax.Count();
+                var qtd = taxation.State.AllTaxScheduled.Count();
                 IClickableMenu.drawTextureBox(Game1.spriteBatch, Game1.mouseCursors, new Rectangle(432, 439, 9, 9), payButton.bounds.X, payButton.bounds.Y, payButton.bounds.Width, payButton.bounds.Height, (payButton.scale > 0f) ? Color.Wheat : Color.White, 4f);
                 Utility.drawTextWithShadow(Game1.spriteBatch, Util.Helper.Translation.Get("PayText"), Game1.dialogueFont, new Vector2(payButton.bounds.Center.X, payButton.bounds.Center.Y + 4) - Game1.dialogueFont.MeasureString(Util.Helper.Translation.Get("PayText")) / 2f, Game1.textColor, 1f, -1f, -1, -1, 0f);
             }

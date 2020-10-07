@@ -23,25 +23,30 @@ namespace EconomyMod.Model
         public Func<TaxSchedule, bool> HasPendingTaxDelegate = c => !c.Paid && c.DayCount <= Game1.stats.DaysPlayed;
 
         [JsonIgnore]
-        public IEnumerable<TaxSchedule> AllScheduledTax => ScheduledTax.Where(HasPendingTaxDelegate).OrderBy(c => c.DayCount);
-        [JsonIgnore]
-        public int PendingTaxAmount => AllScheduledTax.Sum(c => c.Sum);
-        internal void CalculatedNextTax(int scheduledTaxCount)
-        {
-            if (scheduledTaxCount > 10)
-                scheduledTaxCount = 10;
+        public IEnumerable<TaxSchedule> AllTaxScheduled => ScheduledTax.Where(HasPendingTaxDelegate).OrderBy(c => c.DayCount);
 
+        [JsonIgnore]
+        public IEnumerable<TaxSchedule> AllUnpaidTaxScheduled => ScheduledTax.Where(c => !c.Paid).OrderBy(c => c.DayCount);
+        [JsonIgnore]
+        public int PendingTaxAmount => AllTaxScheduled.Sum(c => c.Sum);
+        internal void CalculatedNextTax()
+        {
 
             var date = Convert.ToInt32(Game1.stats.DaysPlayed)
                     .ToWorldDate();
 
+
+
+            var scheduledTaxCount = 0;
             if (Util.Config.TaxAfterFirstYear && date.DaysCount <= 112)
             {
-                date.AddDays(112-date.DaysCount);
+                date.AddDays(112 - date.DaysCount);
             }
+
             switch (Util.Config.TaxPaymentType)
             {
                 case TaxPaymentType.Daily:
+                    scheduledTaxCount = date.DaysLeftToEndOfMonth;
                     for (int i = 0; i < scheduledTaxCount; i++)
                     {
                         if (i > 0) date.AddDays(1);
@@ -51,6 +56,7 @@ namespace EconomyMod.Model
                     }
                     break;
                 case TaxPaymentType.Weekly:
+                    scheduledTaxCount = date.DaysLeftToEndOfMonth / 7;
                     for (int i = 0; i < scheduledTaxCount; i++)
                     {
                         if (i > 0)

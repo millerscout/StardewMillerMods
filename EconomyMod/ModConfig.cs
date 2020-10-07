@@ -11,7 +11,6 @@ namespace EconomyMod
         public bool IncludeGreenhouseOnLotValue { get; set; } = true;
         public bool IncludeOwnedObjectsOnLotValue { get; set; } = true;
         public int GreenhouseValue { get; set; } = 35000; //value taken from Joja restoration.
-        public int ScheduledTaxCount { get; set; } = 7;
         public bool TaxAfterFirstYear { get; set; } = true;
 
         public int[] ListOfDepreciationObjects = new int[] {

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EconomyMod.Helpers;
 using EconomyMod.Model;
 using EconomyMod.Multiplayer.Messages;
 using Microsoft.Xna.Framework;
@@ -21,6 +22,7 @@ namespace EconomyMod
         public LotValue LotValue;
         public event EventHandler<EventHandlerMessage> OnPayTaxesCompleted;
         public event EventHandler<EventHandlerMessage> OnPostPoneTaxesCompleted;
+        public event EventHandler<IEnumerable<TaxSchedule>> OnTaxScheduleListUpdated;
 
 
         public TaxationService()
@@ -74,8 +76,9 @@ namespace EconomyMod
 
             if (NeedToCalculateUpcomingTax())
             {
-                State.CalculatedNextTax(Util.Config.ScheduledTaxCount);
+                State.CalculatedNextTax();
             }
+            OnTaxScheduleListUpdated?.Invoke(this, State.AllUnpaidTaxScheduled.GetAllFromThisSeason(Game1.stats.DaysPlayed));
 
             if (State.HasPendingTax)
             {
@@ -84,7 +87,7 @@ namespace EconomyMod
                 //Util.Monitor.Log($"{Util.Helper.Translation.Get("CurrentLotValueText")}: {CurrentLotValue}.", LogLevel.Info);
 
                 //int Tax = GetAmountByPaymentType(CurrentLotValue);
-                var Taxes = State.AllScheduledTax;
+                var Taxes = State.AllTaxScheduled;
 
                 //Util.Monitor.Log($"[Hardcoded for now] {Util.Helper.Translation.Get("PaymentModeText")}: {Util.Helper.Translation.Get("DailyText")}, {Util.Helper.Translation.Get("TaxValueText")}: {Tax}", LogLevel.Info);
 
@@ -136,7 +139,7 @@ namespace EconomyMod
         private bool NeedToCalculateUpcomingTax()
         {
             var played = Game1.stats.DaysPlayed;
-            return !State.ScheduledTax.Any(c => c.DayCount> played);
+            return !State.ScheduledTax.Any(c => c.DayCount > played);
         }
 
         private void LoadState()
@@ -229,7 +232,7 @@ namespace EconomyMod
         internal void PayTaxes(TaxSchedule Tax = null)
         {
 
-            if (Tax == null) Tax = State.AllScheduledTax.FirstOrDefault();
+            if (Tax == null) Tax = State.AllTaxScheduled.FirstOrDefault();
             if (Tax.Sum > Game1.player.Money)
             {
                 Game1.addHUDMessage(new HUDMessage(Util.Helper.Translation.Get("PayTax_NotEnoughMoneyText"), 3));
@@ -242,6 +245,7 @@ namespace EconomyMod
 
 
             OnPayTaxesCompleted?.Invoke(this, new EventHandlerMessage(Tax.Sum, Game1.player.IsMale));
+            OnTaxScheduleListUpdated?.Invoke(this, State.AllUnpaidTaxScheduled.GetAllFromThisSeason(Game1.stats.DaysPlayed));
         }
 
         private void PostponePayment(TaxSchedule Tax)
@@ -263,7 +267,7 @@ namespace EconomyMod
         public int CurrentDepreciation { get; set; }
         public int LotValue { get; set; }
         public int DepreciationPercentage => (100 - (UsableSoil - CurrentDepreciation) * 100 / UsableSoil);
-        
+
         public int TaxTotal => DepreciationPercentage > 0 ? LotValue / DepreciationPercentage : LotValue;
         public Dictionary<int, int> depreciationList = new Dictionary<int, int>();
         public int CalculateSum(int dayCount = 0)

@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="Helpers\TaxScheduleHelper.cs" />
     <Compile Include="Helpers\WorldDateHelper.cs" />
     <Compile Include="Interface\IContentElement.cs" />
     <Compile Include="Interface\InterfaceFramework.cs" />
@@ -96,6 +97,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Content Include="assets\Interface\Billboard-taxDay.png" />
     <Content Include="assets\Interface\LoanButton.png" />
     <Content Include="assets\Interface\sidebarButtonReport.png" />
     <Content Include="assets\Interface\sidebarEmpty.png" />

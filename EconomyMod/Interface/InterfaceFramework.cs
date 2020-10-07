@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EconomyMod.Helpers;
 using EconomyMod.Interface.PageContent;
+using EconomyMod.Model;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -21,6 +22,7 @@ namespace EconomyMod.Interface
         public event EventHandler<SpriteBatch> OnDraw;
         public event EventHandler<int> OnBeginPageSideChanged;
         public event EventHandler<int> OnEndPageSideChanged;
+
         public int ActivePage { get; set; }
         public List<Func<Page>> PageFactory { get; }
         private Dictionary<int, Page> Pages { get; }
@@ -31,6 +33,9 @@ namespace EconomyMod.Interface
         /// DO NOT SET THIS VALUE USE setCurrentSideTab Instead.
         /// </summary>
         public int currentSideTab { get; private set; }
+        public IEnumerable<TaxSchedule> ListOfScheduledTax { get; private set; }
+        public Dictionary<int, bool> CalendarBool { get; private set; }
+
         public void setCurrentSideTab(int idSidetab)
         {
             OnBeginPageSideChanged?.Invoke(this, idSidetab);
@@ -119,6 +124,8 @@ namespace EconomyMod.Interface
             {
                 Util.Helper.Events.Display.RenderedActiveMenu -= DrawTabButton;
                 Util.Helper.Events.Display.RenderedActiveMenu -= DrawContent;
+                Util.Helper.Events.Display.RenderedActiveMenu -= DrawCalendar;
+                this.CalendarBool = null;
 
 
                 if (e.OldMenu is GameMenu gameMenu)
@@ -170,7 +177,44 @@ namespace EconomyMod.Interface
 
                 Util.Helper.Events.Display.RenderedActiveMenu += DrawTabButton;
                 Util.Helper.Events.Display.RenderedActiveMenu += DrawContent;
+                //Util.Helper.Events.Display.RenderedActiveMenu += DrawCalendar;
 
+            }
+            else if (e.NewMenu is Billboard bill)
+            {
+                Util.Helper.Events.Display.RenderedActiveMenu += DrawCalendar;
+            }
+
+        }
+
+        private void DrawCalendar(object sender, RenderedActiveMenuEventArgs e)
+        {
+            if (Game1.activeClickableMenu != null && Game1.activeClickableMenu is Billboard bill)
+            {
+
+                if (CalendarBool == null)
+                    CalendarBool = Game1.stats.DaysPlayed.ToWorldDate().GenerateCalendarTaxBool(ListOfScheduledTax);
+
+                for (int i = 0; i < bill.calendarDays.Count; i++)
+                {
+                    var item = bill.calendarDays.ElementAt(i);
+
+
+
+                    var halfWidth = item.bounds.Width / 2;
+                    var halfHeight = item.bounds.Height / 2;
+                    var NewBound = new Rectangle(item.bounds.X + halfWidth + halfWidth / 2, item.bounds.Y, halfWidth, halfHeight - 12); ;
+                    InterfaceHelper.Draw(NewBound, InterfaceHelper.InterfaceHelperType.Red);
+
+                    //e.SpriteBatch.End();
+                    //e.SpriteBatch.Begin(SpriteSortMode.Deferred, )
+                    if (CalendarBool.ElementAt(i).Value)
+                        e.SpriteBatch.Draw(Util.Helper.Content.Load<Texture2D>($"assets/Interface/tabIcon.png"), new Vector2(NewBound.X, NewBound.Y), new Rectangle(0, 0, 16, 16), Color.White, 0.0f, Vector2.Zero, 2f, SpriteEffects.None, 0f);
+                }
+                //if (e. is GameMenu newMenu)
+                //{
+
+                //}
             }
 
         }
@@ -294,6 +338,11 @@ namespace EconomyMod.Interface
             {
                 page.Value.SetAsInactive();
             }
+        }
+        public virtual void UpdateListDataList(IEnumerable<TaxSchedule> schedule)
+        {
+            this.ListOfScheduledTax = schedule;
+            this.CalendarBool = null;
         }
     }
     public abstract class Page : IClickableMenu

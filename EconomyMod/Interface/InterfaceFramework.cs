@@ -75,6 +75,10 @@ namespace EconomyMod.Interface
         }
         public virtual void OnButtonPressed(object sender, ButtonPressedEventArgs e)
         {
+
+            if (!Context.IsWorldReady)
+                return;
+
             int x = (int)e.Cursor.ScreenPixels.X;
             int y = (int)e.Cursor.ScreenPixels.Y;
 
@@ -264,10 +268,10 @@ namespace EconomyMod.Interface
 
                             var tab = sideTabs[page.pageGroup][i];
 
-                            if (tab.bounds.X != InterfaceHelper.GetSideTabSizeForPage(page, i).X)
-                            {
-                                tab.bounds = InterfaceHelper.GetSideTabSizeForPage(page, i);
-                            }
+                            //if (tab.bounds.X != InterfaceHelper.GetSideTabSizeForPage(page, i).X)
+                            //{
+                            //    tab.bounds = InterfaceHelper.GetSideTabSizeForPage(page, i);
+                            //}
                             tab.draw(Game1.spriteBatch);
 
 
@@ -321,14 +325,6 @@ namespace EconomyMod.Interface
                     {
                         sideTabs.Add(sidetabData.PageGroup, new List<ClickableTextureComponent> { sidetab });
                     }
-                    p.LeftClickAction += (object _, Coordinate coord) =>
-                    {
-
-
-
-                    };
-
-
                 }
                 return p;
             }));
@@ -365,11 +361,20 @@ namespace EconomyMod.Interface
             this.ui = ui;
             this.Icon = Icon;
             this.HoverText = hoverText;
+
+            for (int i = 0; i < 7; ++i)
+                Slots.Add(new ClickableComponent(
+                    new Rectangle(
+                        xPositionOnScreen + Game1.tileSize / 4,
+                        yPositionOnScreen + Game1.tileSize * 5 / 4 + Game1.pixelZoom + i * (height - Game1.tileSize * 2) / 7,
+                        width - Game1.tileSize / 2,
+                        (height - Game1.tileSize * 2) / 7 + Game1.pixelZoom),
+                    i.ToString()));
+
         }
 
         public Action Draw { get; set; }
         public Action<int, int> DrawHover { get; set; }
-        public event EventHandler<Coordinate> LeftClickAction;
         public event EventHandler<int> OnBeginPageActiveChanged;
         public event EventHandler<int> OnEndPageActiveChanged;
         public PageButton PageButton;
@@ -407,8 +412,10 @@ namespace EconomyMod.Interface
         }
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
+            if (!Context.IsWorldReady)
+                return;
+
             if (!this.active) return;
-            LeftClickAction?.Invoke(this, new Coordinate(x, y));
             base.receiveLeftClick(x, y, playSound);
 
 

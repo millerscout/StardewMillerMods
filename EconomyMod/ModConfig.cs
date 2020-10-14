@@ -29,5 +29,18 @@ namespace EconomyMod
             295, //Twig
             450, //Stone
         };
+
+        public void SetThresholdInPercentageToAskAboutPayment(byte newValue)
+        {
+            if (newValue > 100)
+                ThresholdInPercentageToAskAboutPayment = 100;
+            else if (newValue < 0)
+                ThresholdInPercentageToAskAboutPayment = 0;
+            else
+
+                ThresholdInPercentageToAskAboutPayment = newValue;
+        }
+
+
     }
 }

@@ -76,29 +76,25 @@ namespace EconomyMod.Interface
         public virtual void OnButtonPressed(object sender, ButtonPressedEventArgs e)
         {
 
-            if (!Context.IsWorldReady)
+            if (!Context.IsWorldReady || Game1.activeClickableMenu is null)
                 return;
 
             int x = (int)e.Cursor.ScreenPixels.X;
             int y = (int)e.Cursor.ScreenPixels.Y;
 
-            if (Game1.activeClickableMenu is GameMenu gameMenu)
+            if (Game1.activeClickableMenu is GameMenu menu)
             {
+
                 if (e.Button == SButton.MouseLeft || e.Button == SButton.ControllerA)
                 {
                     foreach (var page in Pages)
                     {
-
-
                         if (page.Value.PageButton != null && page.Value.PageButton.isWithinBounds(x, y))
                         {
-                            if (Game1.activeClickableMenu is GameMenu menu)
-                            {
-                                menu.currentTab = page.Value.pageNumber;
-                                setCurrentSideTab(0);
-                                page.Value.SetAsActive();
-                                Game1.playSound("smallSelect");
-                            }
+                            menu.currentTab = page.Value.pageNumber;
+                            setCurrentSideTab(0);
+                            page.Value.SetAsActive();
+                            Game1.playSound("smallSelect");
                             page.Value.PageButton.LeftClickAction?.Invoke();
                         }
                     }
@@ -106,7 +102,7 @@ namespace EconomyMod.Interface
                     foreach (var v in sideTabs)
                     {
                         var page = Pages.FirstOrDefault(c => c.Value.active);
-                        if (gameMenu.currentTab >= 8 && !page.Value.active || gameMenu.currentTab < 8 && page.Value.pageNumber != gameMenu.currentTab) continue;
+                        if (menu.currentTab >= 8 && !page.Value.active || menu.currentTab < 8 && page.Value.pageNumber != menu.currentTab) continue;
                         var tab = v.Value.FirstOrDefault(c => c.containsPoint(x, y));
                         if (tab != null)
                         {
@@ -116,9 +112,7 @@ namespace EconomyMod.Interface
                         }
                     }
                 }
-
             }
-
             OnLeftClick?.Invoke(this, new Coordinate(x, y));
         }
 

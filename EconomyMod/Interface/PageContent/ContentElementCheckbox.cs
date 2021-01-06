@@ -10,46 +10,30 @@ using StardewValley.Menus;
 
 namespace EconomyMod.Interface.PageContent
 {
-    class ContentElementCheckbox : ContentElementHeaderText
+    public class ContentElementCheckbox : OptionsElement, IContentElement
     {
-        private const int PixelSize = 9;
+        public const int pixelsWide = 9;
 
-        private readonly Action<bool> _toggleOptionsDelegate;
-        private bool _isChecked;
-        private readonly IDictionary<string, string> _options;
-        private readonly string _optionKey;
+        public bool isChecked;
 
-        public ContentElementCheckbox(
-            string label,
-            int whichOption,
-            Action<bool> toggleOptionDelegate,
-            IDictionary<string, string> options,
-            string optionKey,
-            bool defaultValue = true,
-            int x = -1,
-            int y = -1)
-            : base(label, x, y, PixelSize * Game1.pixelZoom, PixelSize * Game1.pixelZoom, whichOption)
+        public static Rectangle sourceRectUnchecked = new Rectangle(227, 425, 9, 9);
+
+        public static Rectangle sourceRectChecked = new Rectangle(236, 425, 9, 9);
+
+        public ContentElementCheckbox(string label, int whichOption, int x = -1, int y = -1)
+            : base(label, x, y, 36, 36, whichOption)
         {
-            _toggleOptionsDelegate = toggleOptionDelegate;
-            _options = options;
-            _optionKey = optionKey;
-
-            if (!_options.ContainsKey(_optionKey))
-                _options[_optionKey] = defaultValue.ToString();
-
-            _isChecked = Convert.ToBoolean(_options[_optionKey]);
-            _toggleOptionsDelegate(_isChecked);
+            //Game1.options.setCheckBoxToProperValue(this);
         }
 
-        public override void ReceiveLeftClick(int x, int y)
+        public override void receiveLeftClick(int x, int y)
         {
-            if (_canClick)
+            if (!greyedOut)
             {
                 Game1.playSound("drumkit6");
-                base.ReceiveLeftClick(x, y);
-                _isChecked = !_isChecked;
-                _options[_optionKey] = _isChecked.ToString();
-                _toggleOptionsDelegate(_isChecked);
+                base.receiveLeftClick(x, y);
+                isChecked = !isChecked;
+                Game1.options.changeCheckBoxOption(whichOption, isChecked);
             }
         }
 

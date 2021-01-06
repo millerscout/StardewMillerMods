@@ -20,10 +20,8 @@ namespace EconomyMod.Interface.Submenu
             //Elements.Add(new OptionsElement(Game1.content.LoadString("Strings\\StringsFromCSFiles:OptionsPage.cs.11233")));
             //Elements.Add(new ContentElementText(Game1.content.LoadString("Strings\\StringsFromCSFiles:OptionsPage.cs.11234")));
             Elements.Add(new ContentElementHeaderText(Util.Helper.Translation.Get("Configuration").Default("Economy Mod Configuration")));
-
-
             Elements.Add(new ContentElementSlider("Threshold To Ask About Payment", () => Util.Config.ThresholdInPercentageToAskAboutPayment, (o) => Util.Config.SetThresholdInPercentageToAskAboutPayment(Convert.ToByte(o))));
-
+            Elements.Add(new ContentElementCheckbox(Util.Helper.Translation.Get("ChkTaxAfterFirstYear").Default("skip tax for the first Year").Key, -1));
 
 
             this.Draw = DrawContent;

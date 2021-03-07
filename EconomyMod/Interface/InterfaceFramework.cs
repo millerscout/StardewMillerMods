@@ -189,7 +189,7 @@ namespace EconomyMod.Interface
 
         private void DrawCalendar(object sender, RenderedActiveMenuEventArgs e)
         {
-            if (Game1.activeClickableMenu != null && Game1.activeClickableMenu is Billboard bill)
+            if (Game1.activeClickableMenu != null && Game1.activeClickableMenu is Billboard bill  && bill.calendarDays != null)
             {
 
                 if (CalendarBool == null)

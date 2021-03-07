@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
+using StardewValley.Menus;
 
 namespace EconomyMod.Interface.PageContent
 {
@@ -68,7 +69,7 @@ namespace EconomyMod.Interface.PageContent
 
         }
 
-        public virtual void draw(SpriteBatch batch, int slotX, int slotY)
+        public virtual void draw(SpriteBatch batch, int slotX, int slotY, IClickableMenu context = null)
         {
             string label = dynamicLabel == null ? _label : dynamicLabel();
             if (_whichOption < 0)
@@ -86,5 +87,6 @@ namespace EconomyMod.Interface.PageContent
                     0.1f);
             }
         }
+
     }
 }

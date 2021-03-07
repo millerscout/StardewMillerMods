@@ -68,7 +68,7 @@ namespace EconomyMod
 
             LoadState();
 
-            if (!Game1.player.useSeparateWallets && !Game1.IsServer)
+            if (!Game1.player.useSeparateWallets && !Game1.IsServer && !Game1.IsMasterGame)
             {
                 return;
             }

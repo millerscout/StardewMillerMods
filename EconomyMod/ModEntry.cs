@@ -41,7 +41,7 @@ namespace EconomyMod
             //}
 
 
-            framework.AddNewPage(() => new LoanPage(framework, taxation), 0, new SidetabData(Util.Helper.Content.Load<Texture2D>($"assets/Interface/LoanButton.png"), "Loan", 0));
+            //framework.AddNewPage(() => new LoanPage(framework, taxation), 0, new SidetabData(Util.Helper.Content.Load<Texture2D>($"assets/Interface/LoanButton.png"), "Loan", 0));
 
 
 

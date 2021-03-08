@@ -74,6 +74,7 @@ namespace EconomyMod
             }
             this.CalculateLotValue();
 
+
             if (NeedToCalculateUpcomingTax())
             {
                 State.CalculatedNextTax();
@@ -139,7 +140,7 @@ namespace EconomyMod
         private bool NeedToCalculateUpcomingTax()
         {
             var played = Game1.stats.DaysPlayed;
-            return !State.ScheduledTax.Any(c => c.DayCount > played);
+            return State.ScheduledTax.Any() && Util.Config.TaxAfterFirstYear && played < Constants.WholeYearDaysCount || !State.ScheduledTax.Any(c => c.DayCount > played);
         }
 
         private void LoadState()

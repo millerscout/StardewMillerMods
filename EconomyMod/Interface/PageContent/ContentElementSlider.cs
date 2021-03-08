@@ -13,7 +13,7 @@ namespace EconomyMod.Interface.PageContent
 {
     public class ContentElementSlider : OptionsElement, IContentElement
     {
-        public void draw(SpriteBatch b, int slotX, int slotY)
+        public override void draw(SpriteBatch b, int slotX, int slotY, IClickableMenu context = null)
         {
             //base.draw(b, slotX, slotY);
             Utility.drawTextWithShadow(b, label, Game1.dialogueFont, new Vector2(slotX + bounds.X + bounds.Width + 8 + (int)labelOffset.X, slotY + bounds.Y + (int)labelOffset.Y), greyedOut ? (Game1.textColor * 0.33f) : Game1.textColor, 1f, 0.1f);
@@ -39,7 +39,7 @@ namespace EconomyMod.Interface.PageContent
 
 
         public ContentElementSlider(string label, Func<int> GetValue, Action<object> setAction, int x = -1, int y = -1)
-            : base(label, x, y, 192, 24, -1)
+            : base(label, x, y, 192, 24, 0)
         {
             this.setAction = setAction;
             this.getValue = GetValue;

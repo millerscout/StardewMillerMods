@@ -113,7 +113,10 @@ namespace EconomyMod.Interface
                     }
                 }
             }
-            OnLeftClick?.Invoke(this, new Coordinate(x, y));
+            if (e.Button == SButton.MouseLeft)
+            {
+                OnLeftClick?.Invoke(this, new Coordinate(x, y));
+            }
         }
 
         public virtual void MenuChanged(object sender, MenuChangedEventArgs e)

@@ -17,11 +17,16 @@ namespace EconomyMod.Interface.Submenu
         public ConfigurationPage(UIFramework ui, Texture2D Icon = null, string hoverText = null) : base(ui, Icon, hoverText)
         {
 
-            //Elements.Add(new OptionsElement(Game1.content.LoadString("Strings\\StringsFromCSFiles:OptionsPage.cs.11233")));
-            //Elements.Add(new ContentElementText(Game1.content.LoadString("Strings\\StringsFromCSFiles:OptionsPage.cs.11234")));
+            //Elements.Add(new OptionsElement(Game1.content.LoadString("Strings\\StringsFromCSFiles:OptionsPage.cs.Constants.WholeYearDaysCount33")));
+            //Elements.Add(new ContentElementText(Game1.content.LoadString("Strings\\StringsFromCSFiles:OptionsPage.cs.Constants.WholeYearDaysCount34")));
             Elements.Add(new ContentElementHeaderText(Util.Helper.Translation.Get("Configuration").Default("Economy Mod Configuration")));
-            Elements.Add(new ContentElementSlider("Threshold To Ask About Payment", () => Util.Config.ThresholdInPercentageToAskAboutPayment, (o) => Util.Config.SetThresholdInPercentageToAskAboutPayment(Convert.ToByte(o))));
-            Elements.Add(new ContentElementCheckbox(Util.Helper.Translation.Get("ChkTaxAfterFirstYear").Default("skip tax for the first Year").Key, -1));
+            //Elements.Add(new ContentElementSlider("Threshold To Ask About Payment", () => Util.Config.ThresholdInPercentageToAskAboutPayment, (o) => Util.Config.SetThresholdInPercentageToAskAboutPayment(Convert.ToByte(o))));
+            Elements.Add(new ContentElementCheckbox(Util.Helper.Translation.Get("ChkTaxAfterFirstYear").Default("skip tax for the first Year"), Util.Config.TaxAfterFirstYear, (newValue) =>
+            {
+                Util.Config.TaxAfterFirstYear = newValue;
+                Util.Helper.WriteConfig(Util.Config);
+
+            }));
 
 
             this.Draw = DrawContent;
@@ -32,13 +37,24 @@ namespace EconomyMod.Interface.Submenu
 
         private void Leftclick(object sender, Coordinate e)
         {
-            foreach (var el in Elements)
+            if (this.active)
             {
-                if (el is ContentElementSlider slider)
+                foreach (var el in Elements)
                 {
 
-                    if (e.X >= slider.clickArea.X && e.X <= slider.clickArea.X+slider.clickArea.Width && e.Y >= slider.clickArea.Y && e.Y <= slider.clickArea.Y+slider.clickArea.Height)
-                        slider.receiveLeftClick(e.X - slider.clickArea.X, e.Y - slider.clickArea.Y);
+
+                    if (el is ContentElementSlider slider)
+                    {
+
+
+                        if (InterfaceHelper.ClickOnTriggerArea(e.X, e.Y, new Rectangle(slider.clickArea.X, slider.clickArea.Y, slider.clickArea.Width, slider.clickArea.Height)))
+                            slider.receiveLeftClick(e.X - slider.clickArea.X, e.Y - slider.clickArea.Y);
+                    }
+                    if (el is ContentElementCheckbox chk)
+                    {
+                        chk.receiveLeftClick(e.X, e.Y);
+                    }
+
                 }
             }
 
@@ -70,7 +86,7 @@ namespace EconomyMod.Interface.Submenu
                         if (slider.clickArea.IsEmpty)
                         {
                             var bounds = Slots[i].bounds;
-                            var clickArea = new Rectangle(bounds.X+32, bounds.Y+16, slider.bounds.Width, slider.bounds.Height);
+                            var clickArea = new Rectangle(bounds.X + 32, bounds.Y + 16, slider.bounds.Width, slider.bounds.Height);
                             if (slider.bounds.X != clickArea.X || slider.bounds.Y != clickArea.Y)
                             {
                                 slider.clickArea = clickArea;
@@ -78,6 +94,14 @@ namespace EconomyMod.Interface.Submenu
                         }
                         InterfaceHelper.Draw(slider.clickArea, InterfaceHelper.InterfaceHelperType.Red);
 
+                    }
+                    if (Elements[currentItemIndex + i] is ContentElementCheckbox chk)
+                    {
+                        if (chk.Slot != currentItemIndex + i)
+                        {
+                            chk.Slot = currentItemIndex + i;
+                            chk.SlotBounds = new Rectangle(Slots[i].bounds.X + 36, Slots[i].bounds.Y + 16, 36, 36);
+                        }
                     }
                     //else
                     InterfaceHelper.Draw(Slots[i].bounds, InterfaceHelper.InterfaceHelperType.Cyan);

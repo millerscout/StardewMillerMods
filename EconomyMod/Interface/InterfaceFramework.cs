@@ -75,26 +75,26 @@ namespace EconomyMod.Interface
         }
         public virtual void OnButtonPressed(object sender, ButtonPressedEventArgs e)
         {
+
+            if (!Context.IsWorldReady || Game1.activeClickableMenu is null)
+                return;
+
             int x = (int)e.Cursor.ScreenPixels.X;
             int y = (int)e.Cursor.ScreenPixels.Y;
 
-            if (Game1.activeClickableMenu is GameMenu gameMenu)
+            if (Game1.activeClickableMenu is GameMenu menu)
             {
+
                 if (e.Button == SButton.MouseLeft || e.Button == SButton.ControllerA)
                 {
                     foreach (var page in Pages)
                     {
-
-
                         if (page.Value.PageButton != null && page.Value.PageButton.isWithinBounds(x, y))
                         {
-                            if (Game1.activeClickableMenu is GameMenu menu)
-                            {
-                                menu.currentTab = page.Value.pageNumber;
-                                setCurrentSideTab(0);
-                                page.Value.SetAsActive();
-                                Game1.playSound("smallSelect");
-                            }
+                            menu.currentTab = page.Value.pageNumber;
+                            setCurrentSideTab(0);
+                            page.Value.SetAsActive();
+                            Game1.playSound("smallSelect");
                             page.Value.PageButton.LeftClickAction?.Invoke();
                         }
                     }
@@ -104,7 +104,7 @@ namespace EconomyMod.Interface
                         var page = Pages.FirstOrDefault(c => c.Value.active);
                         if (page.Value != null)
                         {
-                            if (gameMenu.currentTab >= 8 && !page.Value.active || gameMenu.currentTab < 8 && page.Value.pageNumber != gameMenu.currentTab) continue;
+                            if (menu.currentTab >= 8 && !page.Value.active || menu.currentTab < 8 && page.Value.pageNumber != menu.currentTab) continue;
                             var tab = v.Value.FirstOrDefault(c => c.containsPoint(x, y));
                             if (tab != null)
                             {
@@ -115,10 +115,11 @@ namespace EconomyMod.Interface
                         }
                     }
                 }
-
             }
-
-            OnLeftClick?.Invoke(this, new Coordinate(x, y));
+            if (e.Button == SButton.MouseLeft)
+            {
+                OnLeftClick?.Invoke(this, new Coordinate(x, y));
+            }
         }
 
         public virtual void MenuChanged(object sender, MenuChangedEventArgs e)
@@ -267,10 +268,10 @@ namespace EconomyMod.Interface
 
                             var tab = sideTabs[page.pageGroup][i];
 
-                            if (tab.bounds.X != InterfaceHelper.GetSideTabSizeForPage(page, i).X)
-                            {
-                                tab.bounds = InterfaceHelper.GetSideTabSizeForPage(page, i);
-                            }
+                            //if (tab.bounds.X != InterfaceHelper.GetSideTabSizeForPage(page, i).X)
+                            //{
+                            //    tab.bounds = InterfaceHelper.GetSideTabSizeForPage(page, i);
+                            //}
                             tab.draw(Game1.spriteBatch);
 
 
@@ -324,14 +325,6 @@ namespace EconomyMod.Interface
                     {
                         sideTabs.Add(sidetabData.PageGroup, new List<ClickableTextureComponent> { sidetab });
                     }
-                    p.LeftClickAction += (object _, Coordinate coord) =>
-                    {
-
-
-
-                    };
-
-
                 }
                 return p;
             }));
@@ -368,11 +361,20 @@ namespace EconomyMod.Interface
             this.ui = ui;
             this.Icon = Icon;
             this.HoverText = hoverText;
+
+            for (int i = 0; i < 7; ++i)
+                Slots.Add(new ClickableComponent(
+                    new Rectangle(
+                        xPositionOnScreen + Game1.tileSize / 4,
+                        yPositionOnScreen + Game1.tileSize * 5 / 4 + Game1.pixelZoom + i * (height - Game1.tileSize * 2) / 7,
+                        width - Game1.tileSize / 2,
+                        (height - Game1.tileSize * 2) / 7 + Game1.pixelZoom),
+                    i.ToString()));
+
         }
 
         public Action Draw { get; set; }
         public Action<int, int> DrawHover { get; set; }
-        public event EventHandler<Coordinate> LeftClickAction;
         public event EventHandler<int> OnBeginPageActiveChanged;
         public event EventHandler<int> OnEndPageActiveChanged;
         public PageButton PageButton;
@@ -410,8 +412,10 @@ namespace EconomyMod.Interface
         }
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
+            if (!Context.IsWorldReady)
+                return;
+
             if (!this.active) return;
-            LeftClickAction?.Invoke(this, new Coordinate(x, y));
             base.receiveLeftClick(x, y, playSound);
 
 

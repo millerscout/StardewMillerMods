@@ -102,13 +102,16 @@ namespace EconomyMod.Interface
                     foreach (var v in sideTabs)
                     {
                         var page = Pages.FirstOrDefault(c => c.Value.active);
-                        if (gameMenu.currentTab >= 8 && !page.Value.active || gameMenu.currentTab < 8 && page.Value.pageNumber != gameMenu.currentTab) continue;
-                        var tab = v.Value.FirstOrDefault(c => c.containsPoint(x, y));
-                        if (tab != null)
+                        if (page.Value != null)
                         {
-                            Game1.playSound("smallSelect");
-                            this.setCurrentSideTab(Convert.ToInt32(tab.name));
-                            Pages.FirstOrDefault(c => c.Value.sideTabid == this.currentSideTab).Value.SetAsActive();
+                            if (gameMenu.currentTab >= 8 && !page.Value.active || gameMenu.currentTab < 8 && page.Value.pageNumber != gameMenu.currentTab) continue;
+                            var tab = v.Value.FirstOrDefault(c => c.containsPoint(x, y));
+                            if (tab != null)
+                            {
+                                Game1.playSound("smallSelect");
+                                this.setCurrentSideTab(Convert.ToInt32(tab.name));
+                                Pages.FirstOrDefault(c => c.Value.sideTabid == this.currentSideTab).Value.SetAsActive();
+                            }
                         }
                     }
                 }
@@ -189,7 +192,7 @@ namespace EconomyMod.Interface
 
         private void DrawCalendar(object sender, RenderedActiveMenuEventArgs e)
         {
-            if (Game1.activeClickableMenu != null && Game1.activeClickableMenu is Billboard bill  && bill.calendarDays != null)
+            if (Game1.activeClickableMenu != null && Game1.activeClickableMenu is Billboard bill && bill.calendarDays != null)
             {
 
                 if (CalendarBool == null)
